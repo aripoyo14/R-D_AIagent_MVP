@@ -86,15 +86,19 @@ pip install -r requirements.txt
 ```
 
 4. **環境変数の設定**
-`.streamlit/secrets.toml` ファイルを作成し、以下の形式で設定：
+プロジェクトルートに `.env` ファイルを作成し、以下の形式で設定：
 
-```toml
-[supabase]
-url = "your-supabase-url"
-key = "your-supabase-key"
+```bash
+SUPABASE_URL=your-supabase-url
+SUPABASE_KEY=your-supabase-key
+OPENAI_API_KEY=your-openai-api-key
+```
 
-[openai]
-api_key = "your-openai-api-key"
+`env.example` ファイルをコピーして `.env` ファイルを作成する方法：
+
+```bash
+cp env.example .env
+# .envファイルを編集して実際の値を設定
 ```
 
 詳細は [環境変数の設定](#環境変数の設定) を参照してください。
@@ -151,18 +155,17 @@ product/
 
 ## 🔐 環境変数の設定
 
-### Streamlit Secrets
+### 環境変数の設定方法
 
-Streamlit Cloudまたはローカル環境で `.streamlit/secrets.toml` を作成：
+プロジェクトルートに `.env` ファイルを作成し、以下の形式で設定してください：
 
-```toml
-[supabase]
-url = "https://your-project.supabase.co"
-key = "your-anon-key"
-
-[openai]
-api_key = "sk-..."
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_KEY=your-anon-key
+OPENAI_API_KEY=sk-...
 ```
+
+`.env` ファイルは自動的に読み込まれます（`python-dotenv`を使用）。
 
 ### 環境変数の取得方法
 

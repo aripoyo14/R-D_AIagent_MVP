@@ -10,6 +10,11 @@ from langchain_community.tools import DuckDuckGoSearchRun
 from supabase import create_client, Client
 from typing import List, Dict, Optional
 import json
+import os
+from dotenv import load_dotenv
+
+# .envファイルから環境変数を読み込む
+load_dotenv()
 
 
 def init_vector_store() -> SupabaseVectorStore:
@@ -19,10 +24,10 @@ def init_vector_store() -> SupabaseVectorStore:
     Returns:
         SupabaseVectorStore: 初期化されたベクトルストア
     """
-    # Streamlit secretsから設定を取得
-    supabase_url = st.secrets["supabase"]["url"]
-    supabase_key = st.secrets["supabase"]["key"]
-    openai_api_key = st.secrets["openai"]["api_key"]
+    # 環境変数から設定を取得
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    openai_api_key = os.getenv("OPENAI_API_KEY")
     
     # Supabaseクライアントを作成
     supabase: Client = create_client(supabase_url, supabase_key)
@@ -51,8 +56,8 @@ def get_supabase_client() -> Client:
     Returns:
         Client: Supabaseクライアント
     """
-    supabase_url = st.secrets["supabase"]["url"]
-    supabase_key = st.secrets["supabase"]["key"]
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
     return create_client(supabase_url, supabase_key)
 
 
@@ -108,7 +113,7 @@ def search_cross_pollination(query_text: str, current_department: str, top_k: in
         # クエリのEmbeddingを取得
         embeddings = OpenAIEmbeddings(
             model="text-embedding-3-small",
-            openai_api_key=st.secrets["openai"]["api_key"]
+            openai_api_key=os.getenv("OPENAI_API_KEY")
         )
         query_embedding = embeddings.embed_query(query_text)
         
