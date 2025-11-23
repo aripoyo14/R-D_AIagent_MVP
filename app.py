@@ -11,7 +11,12 @@ from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 import json
+import os
 from datetime import datetime
+from dotenv import load_dotenv
+
+# .envファイルから環境変数を読み込む
+load_dotenv()
 
 
 # 事業部のリスト
@@ -34,8 +39,12 @@ class ReviewResult(BaseModel):
 def check_api_keys() -> bool:
     """APIキーの設定状況を確認"""
     try:
-        has_supabase = "supabase" in st.secrets and "url" in st.secrets["supabase"] and "key" in st.secrets["supabase"]
-        has_openai = "openai" in st.secrets and "api_key" in st.secrets["openai"]
+        supabase_url = os.getenv("SUPABASE_URL")
+        supabase_key = os.getenv("SUPABASE_KEY")
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        
+        has_supabase = supabase_url is not None and supabase_url != "" and supabase_key is not None and supabase_key != ""
+        has_openai = openai_api_key is not None and openai_api_key != ""
         return has_supabase and has_openai
     except:
         return False
@@ -55,7 +64,7 @@ def review_interview_content(content: str) -> ReviewResult:
     llm = ChatOpenAI(
         model="gpt-4o",
         temperature=0.3,
-        openai_api_key=st.secrets["openai"]["api_key"]
+        openai_api_key=os.getenv("OPENAI_API_KEY")
     )
     
     # 出力パーサーを設定
@@ -129,7 +138,7 @@ def generate_idea_report(
     llm = ChatOpenAI(
         model="gpt-4o",
         temperature=0.7,
-        openai_api_key=st.secrets["openai"]["api_key"]
+        openai_api_key=os.getenv("OPENAI_API_KEY")
     )
     
     # 他事業部の知見をフォーマット
@@ -264,7 +273,19 @@ def main():
             st.success("✅ すべてのAPIキーが設定されています")
         else:
             st.error("❌ APIキーが設定されていません")
-            st.info("`.streamlit/secrets.toml` に設定してください")
+            st.info("環境変数 `SUPABASE_URL`, `SUPABASE_KEY`, `OPENAI_API_KEY` を設定してください")
+            
+            # デバッグ情報を表示（展開可能なセクション）
+            with st.expander("🔍 デバッグ情報（環境変数の確認）"):
+                supabase_url = os.getenv("SUPABASE_URL")
+                supabase_key = os.getenv("SUPABASE_KEY")
+                openai_api_key = os.getenv("OPENAI_API_KEY")
+                
+                st.write(f"**SUPABASE_URL**: {'✅ 設定済み' if supabase_url else '❌ 未設定'}")
+                st.write(f"**SUPABASE_KEY**: {'✅ 設定済み' if supabase_key else '❌ 未設定'}")
+                st.write(f"**OPENAI_API_KEY**: {'✅ 設定済み' if openai_api_key else '❌ 未設定'}")
+                
+                st.info("💡 `.env`ファイルを作成し、`env.example`を参考に環境変数を設定してください。")
     
     # メインコンテンツ
     if not api_keys_ok:
