@@ -1,14 +1,27 @@
 create extension if not exists vector;
 
--- フィルタリング対応版の検索関数
+-- 既存の関数とテーブルを削除（リセット）
+drop function if exists match_documents;
+drop table if exists documents;
+
+-- UUIDをIDとするテーブルを作成
+create table documents (
+  id uuid primary key default gen_random_uuid(),
+  content text not null,
+  metadata jsonb,
+  embedding vector(1536),
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- フィルタリング対応版の検索関数（UUID対応）
 create or replace function match_documents (
   query_embedding vector(1536),
   match_threshold float,
   match_count int,
-  filter jsonb DEFAULT '{}'  -- 【追加】フィルタリング用の引数
+  filter jsonb DEFAULT '{}'
 )
 returns table (
-  id bigint,
+  id uuid,
   content text,
   metadata jsonb,
   similarity float
@@ -24,7 +37,7 @@ begin
     1 - (documents.embedding <=> query_embedding) as similarity
   from documents
   where 1 - (documents.embedding <=> query_embedding) > match_threshold
-  and documents.metadata @> filter -- 【追加】ここでメタデータの一致を見ています
+  and documents.metadata @> filter
   order by similarity desc
   limit match_count;
 end;

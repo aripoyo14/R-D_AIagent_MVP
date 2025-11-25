@@ -73,20 +73,29 @@ def save_interview_note(text: str, metadata: Dict) -> bool:
         bool: 保存成功時True
     """
     try:
-        # VectorStoreを初期化
-        vector_store = init_vector_store()
+        # Embeddingモデルを初期化
+        embeddings = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            openai_api_key=os.getenv("OPENAI_API_KEY")
+        )
+        
+        # テキストをEmbedding化
+        embedding = embeddings.embed_query(text)
         
         # メタデータに登録日時を追加（まだない場合）
         if "created_at" not in metadata:
             from datetime import datetime
             metadata["created_at"] = datetime.now().isoformat()
         
-        # テキストとメタデータを保存
-        # SupabaseVectorStoreのadd_textsメソッドを使用
-        vector_store.add_texts(
-            texts=[text],
-            metadatas=[metadata]
-        )
+        # Supabaseクライアントを取得
+        supabase = get_supabase_client()
+        
+        # 直接Supabaseに挿入（IDはBIGSERIALで自動生成される）
+        response = supabase.table("documents").insert({
+            "content": text,
+            "metadata": metadata,
+            "embedding": embedding
+        }).execute()
         
         return True
     except Exception as e:
@@ -107,9 +116,6 @@ def search_cross_pollination(query_text: str, current_department: str, top_k: in
         List[Dict]: 検索結果のリスト（各要素はid, content, metadata, similarityを含む）
     """
     try:
-        # VectorStoreを初期化
-        vector_store = init_vector_store()
-        
         # クエリのEmbeddingを取得
         embeddings = OpenAIEmbeddings(
             model="text-embedding-3-small",
