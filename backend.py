@@ -4,6 +4,16 @@ Supabaseとの接続とベクトル検索機能を提供
 """
 
 import streamlit as st
+
+# duckduckgo-searchの互換性対応
+import sys
+try:
+    import duckduckgo_search
+    if "ddgs" not in sys.modules:
+        sys.modules["ddgs"] = duckduckgo_search
+except ImportError:
+    pass
+
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.tools import DuckDuckGoSearchRun
