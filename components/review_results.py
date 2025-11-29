@@ -1,0 +1,125 @@
+"""
+AIレビュー結果表示コンポーネント
+"""
+
+import streamlit as st
+from services.ai_review import ReviewResult
+from services.report_generator import generate_idea_report
+from backend import save_interview_note, search_cross_pollination, search_market_trends
+from datetime import datetime
+
+
+def handle_registration(selected_department: str, review: ReviewResult):
+    """
+    登録処理とアイデア創出プロセスを実行する
+    
+    Args:
+        selected_department: 選択された事業部名
+        review: AIレビュー結果
+    """
+    # メタデータを準備
+    metadata = {
+        "company_name": st.session_state.form_data.get("company_name", ""),
+        "contact_info": st.session_state.form_data.get("contact_info", ""),
+        "department": selected_department,
+        "tech_tags": review.tech_tags,
+        "created_at": datetime.now().isoformat()
+    }
+    
+    # 保存
+    with st.spinner("💾 データを保存中..."):
+        success = save_interview_note(
+            text=st.session_state.form_data.get("interview_memo", ""),
+            metadata=metadata
+        )
+    
+    if success:
+        st.success("✅ データが正常に保存されました！")
+        st.balloons()
+        
+        # アイデア創出プロセスを実行
+        with st.spinner("💡 アイデア創出プロセスを実行中..."):
+            # 1. 社内シーズの探索
+            st.info("🔍 社内の他事業部の知見を探索中...")
+            interview_content = st.session_state.form_data.get("interview_memo", "")
+            cross_pollination_results = search_cross_pollination(
+                query_text=interview_content,
+                current_department=selected_department,
+                top_k=3
+            )
+            
+            # 2. 市場調査
+            st.info("🌐 市場トレンドを調査中...")
+            market_trends = search_market_trends(
+                tech_tags=review.tech_tags,
+                use_case=review.summary or ""
+            )
+            
+            # 3. 戦略レポート生成
+            st.info("📊 戦略レポートを生成中...")
+            idea_report = generate_idea_report(
+                company_name=st.session_state.form_data.get("company_name", ""),
+                interview_content=interview_content,
+                tech_tags=review.tech_tags,
+                cross_pollination_results=cross_pollination_results,
+                market_trends=market_trends
+            )
+            
+            # セッションステートに保存
+            st.session_state.idea_report = idea_report
+            st.session_state.cross_pollination_results = cross_pollination_results
+            st.session_state.show_idea_report = True
+        
+        # フォームデータとレビュー結果は保持（レポート表示のため）
+        st.rerun()
+    else:
+        st.error("❌ データの保存に失敗しました")
+
+
+def render_review_results(selected_department: str):
+    """
+    AIレビュー結果を表示する
+    
+    Args:
+        selected_department: 選択された事業部名
+    """
+    if not st.session_state.review_result:
+        return
+    
+    st.divider()
+    st.header("🤖 AIレビュー結果")
+    
+    review = st.session_state.review_result
+    
+    if review.is_sufficient:
+        # 情報が十分な場合
+        st.success("✅ 情報が十分です。登録可能な状態です。")
+        
+        # 要約を表示
+        if review.summary:
+            st.subheader("📋 内容要約")
+            st.info(review.summary)
+        
+        # 技術タグを表示
+        if review.tech_tags:
+            st.subheader("🏷️ 抽出された技術タグ")
+            tags_display = " ".join([f"`{tag}`" for tag in review.tech_tags])
+            st.markdown(tags_display)
+        
+        # 登録ボタン
+        st.divider()
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col2:
+            if st.button("この内容で登録しますか？", type="primary", use_container_width=True):
+                handle_registration(selected_department, review)
+    else:
+        # 情報が不足している場合
+        st.warning("⚠️ 情報が不足しています。以下の点について確認してください。")
+        
+        if review.questions:
+            st.subheader("❓ 追加で確認すべき質問")
+            for i, question in enumerate(review.questions, 1):
+                st.markdown(f"{i}. {question}")
+        
+        st.info("💡 具体的な数値や、現行品の問題点などを追加で記入してください。")
+
