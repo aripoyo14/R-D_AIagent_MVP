@@ -1,7 +1,7 @@
 """
 Google翻訳を使用した翻訳サービス
 """
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 from typing import Optional
 
 def translate_to_japanese(text: str, source_lang: str = 'auto') -> Optional[str]:
@@ -16,9 +16,9 @@ def translate_to_japanese(text: str, source_lang: str = 'auto') -> Optional[str]
         Optional[str]: 翻訳されたテキスト、エラーの場合はNone
     """
     try:
-        translator = Translator()
-        result = translator.translate(text, src=source_lang, dest='ja')
-        return result.text
+        translator = GoogleTranslator(source=source_lang, target='ja')
+        result = translator.translate(text)
+        return result
     except Exception as e:
         print(f"翻訳エラー: {e}")
         return None
@@ -36,9 +36,9 @@ def translate_text(text: str, dest_lang: str = 'ja', source_lang: str = 'auto') 
         Optional[str]: 翻訳されたテキスト、エラーの場合はNone
     """
     try:
-        translator = Translator()
-        result = translator.translate(text, src=source_lang, dest=dest_lang)
-        return result.text
+        translator = GoogleTranslator(source=source_lang, target=dest_lang)
+        result = translator.translate(text)
+        return result
     except Exception as e:
         print(f"翻訳エラー: {e}")
         return None
