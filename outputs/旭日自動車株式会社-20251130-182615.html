@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>旭日自動車株式会社</title>
+  <style>
+    :root {
+      --bg: #050914;
+      --panel: rgba(255,255,255,0.08);
+      --text: #e7ecf5;
+      --muted: #9aa3b5;
+      --accent: #7dd3fc;
+      --accent-2: #c084fc;
+      --card: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.18);
+      --shadow: 0 25px 80px rgba(0,0,0,0.4);
+      --glass: rgba(255,255,255,0.04);
+      --glow: 0 10px 40px rgba(125,211,252,0.25), 0 10px 50px rgba(192,132,252,0.18);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'DM Sans','Segoe UI','Helvetica Neue',system-ui,sans-serif;
+      background:
+        radial-gradient(1200px circle at 10% 10%, rgba(125,211,252,0.12), transparent 30%),
+        radial-gradient(900px circle at 80% 0%, rgba(192,132,252,0.14), transparent 28%),
+        radial-gradient(1200px circle at 70% 70%, rgba(56,189,248,0.08), transparent 35%),
+        linear-gradient(135deg, #050914 0%, #0a0f1f 30%, #0b1024 100%);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+    .ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      mix-blend-mode: screen;
+      opacity: 0.45;
+      background:
+        radial-gradient(500px circle at 20% 40%, rgba(125,211,252,0.14), transparent 50%),
+        radial-gradient(420px circle at 75% 20%, rgba(192,132,252,0.16), transparent 50%),
+        radial-gradient(360px circle at 40% 80%, rgba(94,234,212,0.12), transparent 55%);
+      filter: blur(20px);
+    }
+    header {
+      padding: 64px 24px 32px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px;
+      background: linear-gradient(120deg, rgba(125,211,252,0.18), rgba(192,132,252,0.22));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at 20% 20%, rgba(255,255,255,0.08), transparent 40%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: 0.4px;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+    .meta {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 0.2px;
+    }
+    .meta .pill {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--text);
+      box-shadow: var(--glow);
+    }
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .section-label {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-size: 13px;
+      text-transform: uppercase;
+      margin-top: 20px;
+      margin-bottom: -6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label .pill {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      box-shadow: var(--glow);
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 18px 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(125,211,252,0.5);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3), var(--glow);
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(400px circle at 120% -20%, rgba(125,211,252,0.1), transparent 50%);
+      pointer-events: none;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .eyebrow {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: 0.2px;
+    }
+    .card-body p {
+      margin: 6px 0 10px;
+      color: var(--muted);
+    }
+    .card-body h4 {
+      margin: 10px 0 6px;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .bullet-list {
+      margin: 8px 0 12px 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    .bullet-list li {
+      margin: 4px 0;
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 18px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div>
+  <header>
+    <div class="hero">
+      <p>戦略レポート</p>
+      <h1>旭日自動車株式会社</h1>
+      <p>アイデア創出レポート</p>
+      <div class="meta">
+        <span class="pill">Generated</span>
+        <span>2025-11-30 18:26</span>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class='section-label'><span class='pill'>SECTION 01</span>研究開発戦略レポート：旭日自動車向けEVバッテリーモジュール用高機能樹脂材料の提案</div><div class='section-label'><span class='pill'>SECTION 02</span>Trigger - 今回の顧客の声</div>
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Trigger - 今回の顧客の声</h3>
+                  </div>
+                  <div class="card-body">
+                    <p>**企業名:** 旭日自動車株式会社</p><p>**ニーズ:** 次世代800Vシステム向けEVバッテリーモジュール（バスバー支持部材、モジュールハウジング）の放熱・絶縁樹脂材料の検討。</p><p>**現状の課題:**</p><ul class='bullet-list'><li>現行PBT系材料では、高電圧化に伴う絶縁距離確保のための肉厚増が重量増とコスト増（成形サイクル悪化）を招いている。</li><li>急速充電時の発熱やバスバー接合時の熱に対し、現行材（荷重たわみ温度 210℃）の耐熱性が不足し、局所変形リスクがある。</li><li>樹脂部品の熱伝導性不足により、バッテリーセルの冷却効率が阻害されている。</li></ul><p>**具体的な技術要件:**</p><ul class='bullet-list'><li>**絶縁破壊強さ:** 25 kV/mm以上（厚み1.0mm時）</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Trigger - 今回の顧客の声</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>**耐トラッキング性（CTI）:** 600V以上（PLC等級 0）</li><li>**耐熱性（荷重たわみ温度）:** 1.80MPa荷重下で 260℃以上</li><li>**熱伝導率:** 1.5 W/m･K以上（面内方向）</li><li>**難燃性:** 薄肉部（0.75mm）において UL94 V-0</li><li>**機械的強度:** 引張強度 140 MPa以上、曲げ弾性率 10 GPa以上</li><li>**環境対応:** ハロゲンフリー難燃剤、可能であればバイオマス/リサイクル材 20%以上（加点要素）</li><li>**成形性:** 複雑形状対応のため、高いスパイラルフロー長</li><li>**使用環境:** -40℃〜125℃、高湿度環境下での長期使用</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Trigger - 今回の顧客の声</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>**用途:** EV用高電圧ジャンクションブロック、バスバーインサート成形部品</li><li>**スケジュール:** 来月末（12/25）までに物性表、ペレットサンプル（3kg）、平板試験片提出</li></ul>
+                  </div>
+                </article>
+                <div class='section-label'><span class='pill'>SECTION 03</span>Chemical Insight - 抽出された化学的課題</div>
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Chemical Insight - 抽出された化学的課題</h3>
+                  </div>
+                  <div class="card-body">
+                    <p>旭日自動車のニーズは、EVの高電圧化・高出力化に伴う材料への要求性能の極めて高い複合的な課題を示しています。特に以下の化学的課題を克服する必要があります。</p><ul class='bullet-list'><li>**高耐熱性・高絶縁性の両立:**</li><li>800Vシステム対応のCTI 600V以上、絶縁破壊強さ25kV/mm以上、荷重たわみ温度260℃以上という要求は、高分子材料の分子設計、結晶性制御、および高純度・高耐熱性フィラーの選定と分散技術が不可欠です。特に高温・高湿度環境下での長期信頼性確保が重要となります。</li><li>**高熱伝導性かつ絶縁性の維持:**</li><li>熱伝導率1.5 W/m･K以上という目標は、通常、高熱伝導性フィラー（例：窒化ホウ素、アルミナ、炭化ケイ素）の高充填によって達成されます。しかし、これらのフィラーは同時に絶縁性を低下させるリスクがあるため、フィラーの種類、粒度分布、形状、表面処理、そして樹脂マトリックスとの界面接着性の最適化が鍵となります。フィラーネットワーク形成と絶縁破壊パス抑制のバランスが極めて重要です。</li><li>**高機械強度・薄肉難燃性・高流動性のバランス:**</li><li>引張強度140MPa以上、曲げ弾性率10GPa以上という機械的強度と、薄肉部0.75mmでのUL94 V-0難燃性、さらに複雑形状に対応する高流動性は、通常相反する特性です。強化繊維（ガラス繊維など）の最適配合、ハロゲンフリー難燃剤の選定と高分散化、そして高分子の分子量制御や特殊添加剤による流動性改善技術が求められます。</li><li>**環境対応と高性能化の両立:**</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Chemical Insight - 抽出された化学的課題</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>ハロゲンフリー難燃剤の使用は必須であり、さらにバイオマス由来成分やリサイクル材の導入は、材料設計の自由度を制約しつつ、上記の高性能を維持するという高度な課題を提示します。</li></ul><p>これらの課題は、単一の技術では解決できず、高分子設計、コンパウンド技術、フィラー表面処理、成形加工技術など、多岐にわたる化学的知見と高度な配合技術の統合が求められます。</p>
+                  </div>
+                </article>
+                <div class='section-label'><span class='pill'>SECTION 04</span>Cross-Link - 社内の他事業部にある類似知見</div>
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Cross-Link - 社内の他事業部にある類似知見</h3>
+                  </div>
+                  <div class="card-body">
+                    <p>現時点では直接的な関連データは見つかっていませんが、クラレの幅広い事業領域における基盤技術は、本件の課題解決に貢献できる可能性があります。以下の事業部における知見を横断的に活用することで、複合的な材料開発を推進すべきです。</p><ul class='bullet-list'><li>**高機能樹脂事業部:**</li><li>**高耐熱性・高強度樹脂の設計・コンパウンド技術:** PPSや高耐熱PA（PA9Tなど）に代表されるエンジニアリングプラスチックの分子設計、強化繊維やフィラーの複合化技術は、耐熱性、機械的強度、難燃性の要求を満たす上で核となります。特に高充填系での流動性確保や、精密成形における寸法安定性に関する知見は応用可能です。</li><li>**ハロゲンフリー難燃化技術:** 難燃剤の選定、分散、樹脂マトリックスとの相溶性に関するノウハウは、薄肉V-0達成に不可欠です。</li><li>**エラストマー事業部:**</li><li>**耐熱性・耐候性・振動吸収性に関する知見:** EVバッテリーは振動や衝撃に晒されるため、樹脂部品にも一定の靭性が求められます。エラストマーの配合技術や、高分子アロイ化による靭性向上に関する知見は、機械的強度と耐衝撃性の両立に役立つ可能性があります。</li><li>**フィルム事業部:**</li><li>**高絶縁性・薄膜化技術:** 高機能フィルムの開発で培われた、高電圧下での絶縁信頼性確保技術や、薄肉成形における欠陥抑制技術は、絶縁破壊強さや耐トラッキング性の向上に示唆を与えます。</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Cross-Link - 社内の他事業部にある類似知見</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>**共通基盤技術:**</li><li>**フィラー分散技術:** 高熱伝導性フィラーや難燃剤、強化繊維を高充填しても、均一に分散させ、樹脂マトリックスとの界面接着性を最適化する技術は、全ての要求性能（熱伝導性、絶縁性、機械的強度、成形性）に影響を与えます。</li><li>**高分子分析・評価技術:** 高温・高湿度下での長期信頼性評価、絶縁破壊メカニズム解析、熱伝導パスの可視化など、高度な分析・評価技術は開発の効率化に貢献します。</li></ul><p>これらの知見を横断的に連携させ、旭日自動車の具体的なニーズに応えるための複合材料開発チームを組成することが望ましいと考えます。</p>
+                  </div>
+                </article>
+                <div class='section-label'><span class='pill'>SECTION 05</span>Market Trend - 関連する市場の動き</div>
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Market Trend - 関連する市場の動き</h3>
+                  </div>
+                  <div class="card-body">
+                    <p>新エネルギー車（NEV: New Energy Vehicle）市場は、EV、HEV、PHEV、REEV、FCEVといった多様な電動車タイプを含み、世界的に「ますます受け入れられている」状況にあり、急速な成長を続けています。この市場トレンドは、バッテリーシステムにおける高機能材料の需要を強く牽引しています。</p><ul class='bullet-list'><li>**EV市場の拡大と高電圧化:**</li><li>純電動車（BEV）を中心にEVの普及が加速しており、航続距離の延長と充電時間の短縮がユーザーの主要な要求となっています。これを実現するため、バッテリーシステムは800V以上の高電圧化、および急速充電対応が不可欠となりつつあります。</li><li>高電圧化は、バッテリーモジュール内のバスバーや接続部品に、より高い絶縁性能、耐トラッキング性、耐熱性を要求します。</li><li>**バッテリーの高密度化と熱マネジメントの重要性:**</li><li>バッテリーの高エネルギー密度化は、発熱量の増加を意味します。これにより、バッテリーセルの健全性を維持し、性能劣化を防ぐための高度な熱マネジメントが不可欠です。樹脂部品にも熱伝導性が求められるのは、この熱マネジメントの観点からです。</li><li>**軽量化とコスト削減の継続的圧力:**</li><li>EVの航続距離延長には軽量化が不可欠であり、樹脂化による金属代替は重要なアプローチです。同時に、EVの普及にはコスト競争力も重要であり、材料コストと成形加工コストの削減が常に求められます。</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Market Trend - 関連する市場の動き</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>**環境規制の強化:**</li><li>欧州を中心に、自動車部品におけるハロゲンフリー化や、バイオマス由来成分、リサイクル材の利用促進といった環境規制が強化されています。これは、材料メーカーにとって、高性能と環境配慮を両立させる新たな技術開発の機会となっています。</li></ul><p>旭日自動車のニーズは、まさにこれらの市場トレンドの最先端を反映しており、高電圧・高出力EVバッテリーシステムにおける「高耐熱性」「高絶縁性」「高熱伝導性」「軽量化」「環境対応」を兼ね備えた材料の提案は、市場における競争優位性を確立する上で極めて重要です。</p>
+                  </div>
+                </article>
+                <div class='section-label'><span class='pill'>SECTION 06</span>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</div>
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</h3>
+                  </div>
+                  <div class="card-body">
+                    <p>旭日自動車の具体的なニーズと市場トレンドを鑑み、クラレとして以下の「新用途」および「改良アイデア」を提案します。</p>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</h3>
+                  </div>
+                  <div class="card-body">
+                    <h4>1. 新用途提案：高熱伝導・高絶縁性PPS/高耐熱PAコンパウンド「クラレサーモシールド™シリーズ（仮称）」の開発</h4><p>旭日自動車の要求スペックを網羅的に満たすため、PPS（ポリフェニレンスルフィド）または高耐熱PA（ポリアミド）を基材とした、新規の高熱伝導・高絶縁性コンパウンドの開発を提案します。</p><p>**具体的な技術アプローチ:**</p><ul class='bullet-list'><li>**基材樹脂の選定と最適化:**</li><li>**PPS系:** 高い耐熱性（荷重たわみ温度260℃以上）、優れた耐薬品性、難燃性（UL94 V-0）をベースに、分子量制御により高流動性を確保します。</li><li>**高耐熱PA系（例: PA9T系）:** 高い機械的強度と靭性、耐熱性を持ち、吸水率を抑えることで高湿度環境下での絶縁信頼性を向上させます。</li><li>**高熱伝導性・高絶縁性フィラー複合化技術:**</li><li>**フィラー選定:** 窒化ホウ素（BN）、球状アルミナ（Al2O3）などの高熱伝導性かつ高絶縁性フィラーを複合的に採用。</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>**高分散化・界面制御:** 独自のコンパウンド技術とフィラー表面処理技術により、樹脂マトリックス中でのフィラーの均一分散を徹底し、熱伝導パスを効率的に形成しつつ、絶縁破壊パスの発生を抑制します。これにより、熱伝導率1.5 W/m･K以上と絶縁破壊強さ25 kV/mm以上を両立させます。</li><li>**高電圧対応絶縁信頼性強化:**</li><li>樹脂マトリックス自体の高純度化と、フィラーとの界面接着性向上により、ボイドや欠陥の発生を極限まで抑制。これにより、CTI 600V（PLC 0）を確実に達成し、高温・高湿度環境下での長期絶縁信頼性を保証します。</li><li>**薄肉UL94 V-0難燃性:**</li><li>ハロゲンフリー難燃剤の最適配合と、樹脂マトリックスとの相乗効果により、0.75mmの薄肉部においてもUL94 V-0を達成します。</li><li>**高強度・高流動性:**</li><li>ガラス繊維などの強化繊維を最適に配合し、引張強度140 MPa以上、曲げ弾性率10 GPa以上を確保。同時に、特殊な分子設計や流動性向上剤の添加により、複雑なリブ構造を持つ部品でも高いスパイラルフロー長を実現し、成形性を向上させます。</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</h3>
+                  </div>
+                  <div class="card-body">
+                    <h4>2. 改良アイデア（将来的な展開を見据えて）</h4><p>旭日自動車の将来的なニーズや環境規制の動向を見据え、以下の改良アイデアも並行して検討・提案します。</p><ul class='bullet-list'><li>**環境配慮型グレードの先行開発:**</li><li>**バイオマス由来高耐熱PA:** バイオマス由来モノマーを用いた高耐熱PAの開発を加速し、環境負荷低減と高性能を両立するグレードを提案します。</li><li>**リサイクル材活用グレード:** 高品質なリサイクルPPSまたは高耐熱PAを20%以上含むグレードを開発し、サステナビリティ要求に応えます。初期段階では非必須ですが、将来的な規制強化を見据え、先行して技術を確立します。</li><li>**複合機能化材料への展開:**</li><li>熱伝導性・絶縁性に加え、電磁波シールド性や振動吸収性などの付加機能を付与した多機能材料への展開を検討します。これにより、部品点数削減やシステム全体の性能向上に貢献できる可能性があります。</li><li>**モジュール一体成形技術への貢献:**</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</h3>
+                  </div>
+                  <div class="card-body">
+                    <ul class='bullet-list'><li>旭日自動車のバッテリーモジュール設計の進化に合わせ、より複雑な形状や機能統合に対応できる、インサート成形やオーバーモールドなどの成形技術と材料の共同開発を提案。これにより、部品の統合化と生産効率の向上を支援します。</li></ul>
+                  </div>
+                </article>
+                
+                <article class="card">
+                  <div class="card-header">
+                    <div class="eyebrow">INSIGHT</div>
+                    <h3>Proposal - クラレとして提案すべき「新用途」または「改良アイデア」</h3>
+                  </div>
+                  <div class="card-body">
+                    <h4>次のステップ</h4><p>上記提案に基づき、まずは「クラレサーモシールド™シリーズ（仮称）」の初期グレードとして、旭日自動車の要求スペックを満たすPPSまたは高耐熱PAベースの試作コンパウンドを開発し、来月末（12/25）までに物性表、ペレットサンプル（3kg）、および平板試験片を提出できるよう、社内リソースを集中させます。同時に、共同開発体制の構築も視野に入れ、旭日自動車との連携を強化してまいります。</p>
+                  </div>
+                </article>
+                
+  </main>
+  <footer>Generated on 2025-11-30 18:26</footer>
+</body>
+</html>
