@@ -4,8 +4,8 @@ AIレビュー結果表示コンポーネント
 
 import streamlit as st
 from services.ai_review import ReviewResult
-from services.report_generator import generate_idea_report
-from backend import save_interview_note, search_cross_pollination, search_market_trends
+from services.multi_agent import run_innovation_squad
+from backend import save_interview_note
 from datetime import datetime
 
 
@@ -36,53 +36,47 @@ def handle_registration(selected_department: str, review: ReviewResult):
     if success:
         st.success("✅ データが正常に保存されました！")
         st.balloons()
-        
+
         # アイデア創出プロセスを実行
-        with st.spinner("💡 アイデア創出プロセスを実行中..."):
-            # 1. 社内シーズの探索
-            st.info("🔍 社内の他事業部の知見を探索中...")
+        with st.spinner("💡 イノベーション分隊が議論中..."):
             interview_content = st.session_state.form_data.get("interview_memo", "")
-            cross_pollination_results = search_cross_pollination(
-                query_text=interview_content,
-                current_department=selected_department,
-                top_k=3
-            )
-            
-            # 2. 市場調査
-            st.info("🌐 市場トレンドを調査中...")
-            market_trends = search_market_trends(
+            idea_report, cross_pollination_results = run_innovation_squad(
+                interview_memo=interview_content,
                 tech_tags=review.tech_tags,
-                use_case=review.summary or ""
-            )
-            
-            # 3. 戦略レポート生成
-            st.info("📊 戦略レポートを生成中...")
-            idea_report = generate_idea_report(
+                department=selected_department,
                 company_name=st.session_state.form_data.get("company_name", ""),
-                interview_content=interview_content,
-                tech_tags=review.tech_tags,
-                cross_pollination_results=cross_pollination_results,
-                market_trends=market_trends
             )
-            
+
             # セッションステートに保存
             st.session_state.idea_report = idea_report
             st.session_state.cross_pollination_results = cross_pollination_results
             st.session_state.show_idea_report = True
-        
+
         # フォームデータとレビュー結果は保持（レポート表示のため）
+        st.session_state.is_agent_running = False
         st.rerun()
     else:
         st.error("❌ データの保存に失敗しました")
+        st.session_state.is_agent_running = False
 
 
 def render_review_results(selected_department: str):
     """
     AIレビュー結果を表示する
-    
+
     Args:
         selected_department: 選択された事業部名
     """
+    # レイアウト幅を広めに確保（チャットやレポートを読みやすくするため）
+    st.markdown(
+        """
+        <style>
+        div.block-container {max-width: 1200px !important;}
+        div[data-testid="chat-message"] {max-width: 100% !important;}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     if not st.session_state.review_result:
         return
     
@@ -107,11 +101,22 @@ def render_review_results(selected_department: str):
             st.markdown(tags_display)
         
         # 登録ボタン
+        if "is_agent_running" not in st.session_state:
+            st.session_state.is_agent_running = False
+
         st.divider()
         col1, col2, col3 = st.columns([1, 1, 1])
         with col2:
-            if st.button("この内容で登録しますか？", type="primary", use_container_width=True):
-                handle_registration(selected_department, review)
+            register_clicked = st.button(
+                "この内容で登録しますか？",
+                type="primary",
+                use_container_width=True,
+                disabled=st.session_state.is_agent_running,
+            )
+
+        if register_clicked:
+            st.session_state.is_agent_running = True
+            handle_registration(selected_department, review)
     else:
         # 情報が不足している場合
         st.warning("⚠️ 情報が不足しています。以下の点について確認してください。")
@@ -122,4 +127,3 @@ def render_review_results(selected_department: str):
                 st.markdown(f"{i}. {question}")
         
         st.info("💡 具体的な数値や、現行品の問題点などを追加で記入してください。")
-

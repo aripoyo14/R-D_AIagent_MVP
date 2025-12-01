@@ -16,7 +16,7 @@ except ImportError:
 
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.tools import DuckDuckGoSearchRun
+from ddgs import DDGS
 from supabase import create_client, Client
 from typing import List, Dict, Optional
 import json
@@ -184,20 +184,25 @@ def search_market_trends(tech_tags: List[str], use_case: str = "") -> str:
         str: 検索結果の要約
     """
     try:
-        # 検索クエリを生成
+        # 検索クエリを生成（面談メモをそのまま入れるとURLが長くなるため整形＋上限）
         tags_str = ", ".join(tech_tags)
-        if use_case:
-            query = f"{tags_str} {use_case} 市場トレンド 規制 新技術 2024 2025"
-        else:
-            query = f"{tags_str} 市場トレンド 規制 新技術 化学材料 2024 2025"
-        
-        # DuckDuckGo検索を実行
-        search = DuckDuckGoSearchRun()
-        results = search.run(query)
-        
-        return results if results else "市場情報が見つかりませんでした。"
-        
-    except Exception as e:
-        st.warning(f"市場調査エラー: {str(e)}")
-        return f"市場調査中にエラーが発生しました: {str(e)}"
+        use_case_trimmed = " ".join(use_case.split())[:180] if use_case else ""
+        query_parts = [tags_str, use_case_trimmed, "市場トレンド 規制 新技術 2024 2025"]
+        query = " ".join([p for p in query_parts if p]).strip()[:512]
 
+        # DuckDuckGo検索を実行（DDGSのtext APIを使用）
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=5))
+
+        if not results:
+            return "市場情報が見つかりませんでした。"
+
+        # シンプルなテキスト整形で返す
+        return "\n".join(
+            f"{r.get('title', '')} ({r.get('href', '')}) - {r.get('body', '')}"
+            for r in results
+        )
+
+    except Exception as e:
+        st.warning("市場調査エラー: 市場検索に失敗しました。後でもう一度お試しください。")
+        return "市場調査結果を取得できませんでした。"

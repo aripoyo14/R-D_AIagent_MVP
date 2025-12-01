@@ -4,6 +4,9 @@
 
 import streamlit as st
 from typing import List, Dict
+from services.markdown_parser import parse_markdown_to_slides
+from services.html_report import create_html_report
+from services.slide_report import create_slide_report
 
 
 def display_cross_pollination_cards(results: List[Dict]):
@@ -53,6 +56,59 @@ def render_idea_report():
     st.header("💡 アイデア創出レポート")
     st.markdown("---")
     
+    # HTMLレポート出力ボタン
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col2:
+        if st.button("📄 HTMLで保存", type="primary", use_container_width=True):
+            try:
+                with st.spinner("HTMLレポートを生成中..."):
+                    company_name = st.session_state.form_data.get("company_name", "")
+                    slides_data = parse_markdown_to_slides(
+                        st.session_state.idea_report,
+                        company_name=company_name
+                    )
+                    html_path = create_html_report(
+                        slides_data,
+                        title="アイデア創出レポート",
+                        company_name=company_name,
+                    )
+                    st.success("✅ HTMLレポートを作成しました")
+                    st.markdown(f"[ローカルで開く]({html_path})")
+                    st.session_state.html_report_path = html_path
+            except ValueError as e:
+                st.error(f"❌ 設定エラー: {str(e)}")
+            except Exception as e:
+                st.error(f"❌ エラーが発生しました: {str(e)}")
+
+    with col3:
+        if st.button("📊 スライドを作成", type="primary", use_container_width=True):
+            try:
+                with st.spinner("スライドを生成中..."):
+                    company_name = st.session_state.form_data.get("company_name", "")
+                    slides_data = parse_markdown_to_slides(
+                        st.session_state.idea_report,
+                        company_name=company_name
+                    )
+                    slide_path = create_slide_report(
+                        slides_data,
+                        title="アイデア創出レポート",
+                        company_name=company_name,
+                    )
+                    st.success("✅ スライドを作成しました")
+                    st.markdown(f"[スライドを開く]({slide_path})")
+                    st.session_state.slide_report_path = slide_path
+            except ValueError as e:
+                st.error(f"❌ 設定エラー: {str(e)}")
+            except Exception as e:
+                st.error(f"❌ エラーが発生しました: {str(e)}")
+    
+    # 以前に作成されたレポートへのリンク
+    if hasattr(st.session_state, 'html_report_path') and st.session_state.html_report_path:
+        st.info(f"📎 作成済みレポート: [開く]({st.session_state.html_report_path})")
+    
+    if hasattr(st.session_state, 'slide_report_path') and st.session_state.slide_report_path:
+        st.info(f"📎 作成済みスライド: [開く]({st.session_state.slide_report_path})")
+    
     # レポート本文を表示
     st.markdown(st.session_state.idea_report)
     
@@ -76,4 +132,3 @@ def render_idea_report():
             st.session_state.cross_pollination_results = []
             st.session_state.show_idea_report = False
             st.rerun()
-

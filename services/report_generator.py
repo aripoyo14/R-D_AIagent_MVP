@@ -3,7 +3,8 @@
 戦略レポートを生成する
 """
 
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from typing import List, Dict
 import os
@@ -80,7 +81,7 @@ def generate_idea_report(
     market_trends: str
 ) -> str:
     """
-    GPT-4oを使用して戦略レポートを生成する
+    Gemini 2.5 Proを使用して戦略レポートを生成する
     
     Args:
         company_name: 企業名
@@ -92,11 +93,20 @@ def generate_idea_report(
     Returns:
         str: Markdown形式のレポート
     """
+
+    # Gemini 用チェック
+    if ChatGoogleGenerativeAI is None:
+        raise ImportError("Gemini を使うには langchain-google-genai のインストールが必要です")
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY が設定されていません")
+
     # LLMを初期化
-    llm = ChatOpenAI(
+    llm = ChatGoogleGenerativeAI(
         model="gpt-4o",
         temperature=0.7,
-        openai_api_key=os.getenv("OPENAI_API_KEY")
+        google_api_key=api_key,
     )
     
     # 他事業部の知見をフォーマット
@@ -120,4 +130,3 @@ def generate_idea_report(
     # LLMを呼び出し
     response = llm.invoke(formatted_prompt)
     return response.content
-

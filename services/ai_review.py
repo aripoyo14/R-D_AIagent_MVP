@@ -3,7 +3,8 @@ AIレビューサービス
 面談内容をAIがレビューし、情報の十分性を評価する
 """
 
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from pydantic import BaseModel, Field
@@ -21,7 +22,7 @@ class ReviewResult(BaseModel):
 
 
 # プロンプトテンプレート（関数の外に定義）
-REVIEW_PROMPT_TEMPLATE = """あなたは化学メーカーの研究開発部門の専門家です。
+REVIEW_PROMPT_TEMPLATE = """あなたは化学メーカーの研究開発部門の専門家です。出力は必ず日本語で記載してください。
 面談メモの内容を評価し、以下の基準で判断してください：
 
 【評価基準】
@@ -42,7 +43,7 @@ REVIEW_PROMPT_TEMPLATE = """あなたは化学メーカーの研究開発部門�
 
 def review_interview_content(content: str) -> ReviewResult:
     """
-    GPT-4oを使用して面談内容をレビューする
+    Gemini 2.5 Proを使用して面談内容をレビューする
     
     Args:
         content: 面談メモの内容
@@ -50,11 +51,26 @@ def review_interview_content(content: str) -> ReviewResult:
     Returns:
         ReviewResult: レビュー結果
     """
-    # LLMを初期化
-    llm = ChatOpenAI(
-        model="gpt-4o",
+    # # LLMを初期化
+    # llm = ChatOpenAI(
+    #     model="gpt-4o",
+    #     temperature=0.3,
+    #     openai_api_key=os.getenv("OPENAI_API_KEY")
+    # )
+
+    # Gemini 用のチェック
+    if ChatGoogleGenerativeAI is None:
+        raise ImportError("Gemini を使うには langchain-google-genai のインストールが必要です")
+
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("GEMINI_API_KEY が設定されていません")
+
+    # LLMを初期化（Gemini 2.5 Pro）
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-2.5-pro",
         temperature=0.3,
-        openai_api_key=os.getenv("OPENAI_API_KEY")
+        google_api_key=api_key,
     )
     
     # 出力パーサーを設定
@@ -86,4 +102,3 @@ def review_interview_content(content: str) -> ReviewResult:
             is_sufficient=False,
             questions=[f"AIレビューの解析に失敗しました: {str(e)}。もう一度お試しください。"]
         )
-

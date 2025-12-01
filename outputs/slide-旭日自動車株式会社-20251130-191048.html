@@ -1,0 +1,421 @@
+はい、承知いたしました。
+プロフェッショナルなプレゼンテーションデザイナーとして、ご提供いただいたJSONデータをもとに、Reveal.jsを使用した美しくインパクトのあるHTMLスライドを作成します。
+
+今回は、先進的な技術内容に合わせて**「Futuristic Corporate」**をテーマにデザインしました。深いネイビーの背景にサイバーな雰囲気のアクセントカラー（シアンとライムグリーン）を配置し、企業の技術力と未来感を表現しています。
+
+以下に、完全なHTMLコードを出力します。
+
+
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>旭日自動車株式会社 戦略レポート</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reset.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/black.min.css" id="theme">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --r-background-color: #0a0f23;
+      --r-main-font: 'Roboto', 'Noto Sans JP', sans-serif;
+      --r-main-font-size: 22px;
+      --r-main-color: #e0e6f0;
+      --r-heading-color: #ffffff;
+      --r-heading-font: 'Roboto', 'Noto Sans JP', sans-serif;
+      --r-heading-text-transform: none;
+      --r-heading-font-weight: 700;
+      --r-link-color: #00e5ff;
+      --r-link-color-hover: #76ff03;
+      --r-selection-background-color: #00e5ff;
+      --r-selection-color: #0a0f23;
+      
+      --accent-color-1: #00e5ff; /* Cyan */
+      --accent-color-2: #76ff03; /* Lime Green */
+      --border-color: rgba(0, 229, 255, 0.3);
+    }
+
+    body {
+      background: var(--r-background-color);
+      background-image:
+        radial-gradient(circle at top right, rgba(0, 229, 255, 0.15), transparent 40%),
+        radial-gradient(circle at bottom left, rgba(118, 255, 3, 0.1), transparent 50%);
+    }
+
+    .reveal {
+      font-family: var(--r-main-font);
+    }
+
+    .reveal .slides section {
+      text-align: left;
+    }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4,
+    .reveal h5,
+    .reveal h6 {
+      font-family: var(--r-heading-font);
+      color: var(--r-heading-color);
+      text-shadow: 0 0 5px rgba(0, 229, 255, 0.3);
+    }
+
+    .reveal h1 {
+      font-size: 3.5em;
+    }
+
+    .reveal h2 {
+      font-size: 2.5em;
+    }
+    
+    .reveal h3 {
+      font-size: 1.5em;
+      color: var(--accent-color-1);
+      border-left: 4px solid var(--accent-color-1);
+      padding-left: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .reveal h4 {
+        font-size: 1.1em;
+        color: var(--accent-color-2);
+        margin-top: 30px;
+        margin-bottom: 15px;
+    }
+
+    .reveal strong {
+      color: var(--accent-color-2);
+      font-weight: 700;
+    }
+
+    .reveal ul {
+      list-style-type: none;
+      padding-left: 20px;
+    }
+    
+    .reveal ul li {
+      margin-bottom: 15px;
+      padding-left: 30px;
+      position: relative;
+    }
+
+    .reveal ul li::before {
+      content: '»';
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--accent-color-1);
+      font-size: 1.2em;
+      line-height: 1;
+    }
+
+    .reveal p {
+      margin-bottom: 15px;
+      line-height: 1.6;
+    }
+
+    /* Title Slide */
+    .title-slide {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .title-slide h1 {
+      font-size: 3em;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 20px;
+      margin-bottom: 20px;
+    }
+    .title-slide .subtitle {
+      font-size: 1.5em;
+      color: var(--r-main-color);
+      opacity: 0.8;
+    }
+    
+    /* Section Title Slide */
+    .section-title {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .section-title h2 {
+        font-size: 2.2em;
+        background: linear-gradient(90deg, var(--accent-color-1), var(--accent-color-2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        padding: 10px 20px;
+        position: relative;
+    }
+    .section-title h2::before, .section-title h2::after {
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 3px;
+        background: var(--border-color);
+    }
+    .section-title h2::before {
+        left: -30px;
+        top: 50%;
+    }
+    .section-title h2::after {
+        right: -30px;
+        top: 50%;
+    }
+
+    /* Layout Helpers */
+    .two-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+    
+    .quote {
+        border-left: 4px solid var(--border-color);
+        padding-left: 20px;
+        font-style: italic;
+        color: #a0a6b0;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+      
+      <section class="title-slide" data-transition="zoom">
+        <h1 class="r-fit-text">旭日自動車株式会社</h1>
+        <p class="subtitle">戦略レポート</p>
+      </section>
+
+      <section class="section-title" data-transition="fade-in slide-out">
+        <h2>クラレ 研究開発戦略レポート：<br>旭日自動車向けEVバッテリーモジュール用<br>高機能樹脂材料の提案</h2>
+      </section>
+
+      <section class="section-title" data-transition="fade-in slide-out">
+        <h2>1. Trigger<br>- 今回の顧客の声 -</h2>
+      </section>
+
+      <section>
+        <h3>1. Trigger - 今回の顧客の声</h3>
+        <p><strong>企業名:</strong> 旭日自動車株式会社</p>
+        <p class="fragment"><strong>ニーズ:</strong> 次世代800Vシステム向けEVバッテリーモジュールに適用可能な、高放熱性・高絶縁性・高耐熱性・高強度を兼ね備えた高機能樹脂材料の提案。</p>
+        <div class="fragment">
+            <h4>現状の課題:</h4>
+            <ul>
+                <li class="fragment">現行PBT系材料では、高電圧化による絶縁距離確保のための肉厚増が<strong>重量増</strong>と<strong>コスト増</strong>を招いている。</li>
+                <li class="fragment">急速充電時の発熱やバスバー接合時の熱に対し、現行材（荷重たわみ温度 210℃）の<strong>耐熱性が不足</strong>し、変形リスクがある。</li>
+                <li class="fragment">樹脂部品が熱ごもりを発生させ、バッテリーセルの<strong>冷却効率を阻害</strong>している。</li>
+            </ul>
+        </div>
+      </section>
+
+      <section>
+        <h3>1. Trigger - 今回の顧客の声</h3>
+        <h4>具体的な技術要件 (1/2):</h4>
+        <ul>
+            <li class="fragment"><strong>絶縁破壊強さ:</strong> 25 kV/mm以上（厚み1.0mm時）</li>
+            <li class="fragment"><strong>耐トラッキング性（CTI）:</strong> 600V以上（PLC等級 0）</li>
+            <li class="fragment"><strong>耐熱性（荷重たわみ温度）:</strong> 1.80MPa荷重下で 260℃以上</li>
+            <li class="fragment"><strong>熱伝導率:</strong> 1.5 W/m･K以上（面内方向）</li>
+            <li class="fragment"><strong>難燃性:</strong> 薄肉部（0.75mm）において UL94 V-0</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>1. Trigger - 今回の顧客の声</h3>
+        <h4>具体的な技術要件 (2/2):</h4>
+        <ul>
+            <li class="fragment"><strong>機械的強度:</strong> 引張強度 140 MPa以上、曲げ弾性率 10 GPa以上</li>
+            <li class="fragment"><strong>環境対応:</strong> ハロゲンフリー難燃剤必須。バイオマス由来成分やリサイクル材 20%以上（加点要素）。</li>
+            <li class="fragment"><strong>成形性:</strong> 複雑形状対応のため、高いスパイラルフロー長。</li>
+            <li class="fragment"><strong>使用環境:</strong> -40℃〜125℃、高湿度環境下での長期使用。</li>
+        </ul>
+      </section>
+      
+      <section>
+        <h3>1. Trigger - 今回の顧客の声</h3>
+        <h4>用途とスケジュール:</h4>
+         <ul>
+            <li class="fragment"><strong>用途:</strong> EV用高電圧ジャンクションブロック、バスバーインサート成形部品。</li>
+            <li class="fragment"><strong>スケジュール:</strong> 来月末（12/25）までに物性表、ペレットサンプル（3kg）、平板試験片提出希望。</li>
+            <li class="fragment"><strong>生産規模:</strong> 2027年Q3より量産開始予定。初年度20万台/年（1台あたり12個使用）。</li>
+        </ul>
+      </section>
+
+      <section class="section-title" data-transition="fade-in slide-out">
+        <h2>2. Chemical Insight<br>- 抽出された化学的課題 -</h2>
+      </section>
+
+      <section>
+        <h3>2. Chemical Insight - 抽出された化学的課題</h3>
+        <p>旭日自動車のニーズは、多機能かつ高次元の物性バランスを要求するものです。主要な化学的課題は以下の通りです。</p>
+        <div class="two-columns">
+            <div>
+                <ul>
+                    <li class="fragment"><strong>高耐熱性・高強度化:</strong><br>PPSや高耐熱PAをベースとし、繊維強化による機械的強度向上が必要。</li>
+                    <li class="fragment"><strong>高絶縁性・耐トラッキング性:</strong><br>ポリマー構造の安定性、不純物低減、フィラー界面の最適化が不可欠。</li>
+                </ul>
+            </div>
+            <div>
+                <ul>
+                    <li class="fragment"><strong>高熱伝導性化（絶縁維持）:</strong><br>BN, Al2O3等のセラミックスフィラーを高充填・均一分散させる技術が鍵。</li>
+                    <li class="fragment"><strong>薄肉高難燃化（ハロゲンフリー）:</strong><br>リン系、窒素系等の難燃剤を効果的に組み合わせ、炭化層形成能力が重要。</li>
+                </ul>
+            </div>
+        </div>
+      </section>
+      
+      <section>
+        <h3>2. Chemical Insight - 抽出された化学的課題</h3>
+        <h4>環境対応と成形性:</h4>
+        <ul>
+            <li class="fragment">バイオマス/リサイクル材導入時の<strong>物性低下抑制</strong>と品質安定化が課題。</li>
+            <li class="fragment">複雑形状に対応するため、溶融粘度の最適化、結晶化速度の制御など<strong>高流動性設計</strong>が求められる。</li>
+        </ul>
+        <p class="fragment quote">これらの課題は、複数の相反する物性（例：熱伝導性と絶縁性）を同時に高次元でバランスさせる、<strong>高度なコンパウンディング技術</strong>と<strong>ポリマー設計能力</strong>を要求します。</p>
+      </section>
+
+      <section class="section-title" data-transition="fade-in slide-out">
+        <h2>3. Cross-Link<br>- 社内の他事業部にある類似知見 -</h2>
+      </section>
+      
+      <section>
+        <h3>3. Cross-Link - 社内の他事業部にある類似知見</h3>
+        <p>クラレの持つ基盤技術は、本件への応用可能性を秘めています。</p>
+        <div class="two-columns">
+            <div class="fragment">
+                <h4>高分子材料設計・精密重合技術</h4>
+                <p>EVOH（エバール）などで培った分子設計技術を応用し、耐熱性、機械的強度、耐湿性を最適化。</p>
+            </div>
+            <div class="fragment">
+                <h4>コンパウンディング・複合材料技術</h4>
+                <p>機能性フィラーの高充填・高分散技術、難燃剤の最適配合技術など、多機能性をバランスさせる上で極めて重要。</p>
+            </div>
+            <div class="fragment">
+                <h4>評価・解析技術</h4>
+                <p>高電圧下での絶縁破壊挙動、熱伝導パスの可視化など、高度な評価ニーズに既存知見・設備を活用可能。</p>
+            </div>
+            <div class="fragment">
+                <h4>環境対応材料技術</h4>
+                <p>バイオマス由来モノマーやリサイクル材活用の知見は、旭日自動車の環境ニーズに応える上で重要な要素。</p>
+            </div>
+        </div>
+      </section>
+      
+      <section>
+        <h3>3. Cross-Link - 社内の他事業部にある類似知見</h3>
+        <p class="fragment" style="font-size: 1.5em; text-align: center; margin-top: 10%;">
+          これらの基盤技術をクロスリンクすることで、<br>旭日自動車の高度なニーズに応える<br><strong>高機能樹脂材料の開発</strong>を追求すべきです。
+        </p>
+      </section>
+
+      <section class="section-title" data-transition="fade-in slide-out">
+        <h2>4. Market Trend<br>- 関連する市場の動き -</h2>
+      </section>
+      
+      <section>
+        <h3>4. Market Trend - 関連する市場の動き</h3>
+        <p>EV市場は高い成長が見込まれ、バッテリー性能向上が喫緊の課題です。</p>
+        <ul>
+            <li class="fragment"><strong>高電圧化・高出力化の加速:</strong> 800Vシステムへの移行により、絶縁材料への要求が高度化。</li>
+            <li class="fragment"><strong>熱マネジメントの重要性増大:</strong> バッテリーの安全性・寿命向上のため、放熱技術が不可欠。</li>
+            <li class="fragment"><strong>軽量化とコスト削減:</strong> 薄肉化と高性能を両立できる樹脂材料が重要なソリューション。</li>
+            <li class="fragment"><strong>環境規制とサステナビリティ:</strong> ハロゲンフリー、バイオ/リサイクル材活用が競争優位性に直結。</li>
+        </ul>
+        <p class="fragment quote">旭日自動車のニーズは、<strong>EV市場全体の共通課題</strong>であり、今後も需要拡大が見込まれます。</p>
+      </section>
+
+      <section class="section-title" data-transition="fade-in slide-out">
+        <h2>5. Proposal<br>- クラレとして提案すべき「新用途」または「改良アイデア」 -</h2>
+      </section>
+      
+      <section>
+        <h3>5. Proposal - クラレとして提案すべきこと</h3>
+        <p>クラレは、旭日自動車の次世代EVバッテリーモジュール向け高機能樹脂材料のニーズに対し、以下の「新用途」および「改良アイデア」を提案します。</p>
+      </section>
+      
+      <section>
+        <h3>5.1. 新用途提案：KURARAY THERMO-INSULATE™ シリーズ (仮称)</h3>
+        <p>旭日自動車の要求物性を満たす、EVバッテリーモジュール専用の高放熱・高絶縁性エンジニアリングプラスチックシリーズを新規開発・提案します。</p>
+        <div class="fragment" style="border: 1px solid var(--border-color); padding: 20px; margin-top: 30px; border-radius: 8px;">
+            <h4>コンセプト:</h4>
+            <p style="font-size: 1.2em; text-align: center;"><strong>"Thermal Management & Electrical Safety"</strong></p>
+            <p style="text-align: center;">EVバッテリーの安全性と性能向上に貢献する材料ソリューション</p>
+        </div>
+      </section>
+      
+      <section>
+        <h3>5.2. 改良アイデア - 具体的な開発アプローチ (1/3)</h3>
+        <h4>高耐熱・高強度ベースポリマーの最適化</h4>
+        <ul>
+            <li class="fragment"><strong>PPS/高耐熱PA複合材料の開発:</strong> PPSと高耐熱PAの長所を活かしたハイブリッド設計で、要求される耐熱性・機械強度を達成。</li>
+            <li class="fragment"><strong>ポリマー骨格の精密設計:</strong> 精密重合技術を応用し、物性バランスを極限まで向上。</li>
+        </ul>
+        <h4 class="fragment">高熱伝導性・高絶縁性両立技術</h4>
+        <ul>
+            <li class="fragment"><strong>高機能フィラーの最適配合と表面処理:</strong> BN, Al2O3等のフィラーを高充填・高分散させ、熱伝導率1.5 W/m･K以上を達成。</li>
+            <li class="fragment"><strong>界面制御技術の確立:</strong> フィラーとポリマー界面の接着性を高め、絶縁破壊強さと長期信頼性を確保。</li>
+        </ul>
+      </section>
+      
+      <section>
+        <h3>5.2. 改良アイデア - 具体的な開発アプローチ (2/3)</h3>
+        <h4>薄肉高難燃化（ハロゲンフリー）</h4>
+        <ul>
+            <li class="fragment"><strong>複合難燃システムの構築:</strong> リン系、窒素系等の難燃剤を組み合わせ、相乗効果により0.75mm厚でUL94 V-0を達成。</li>
+            <li class="fragment"><strong>難燃剤の分散性向上:</strong> 特殊コンパウンディング技術で、難燃性能の安定化と機械物性への影響を最小化。</li>
+        </ul>
+      </section>
+
+      <section>
+        <h3>5.2. 改良アイデア - 具体的な開発アプローチ (3/3)</h3>
+        <h4>成形性と環境対応</h4>
+        <ul>
+            <li class="fragment"><strong>高流動性設計:</strong> 溶融粘度制御により、複雑形状部品の成形サイクル短縮と不良率低減に貢献。</li>
+            <li class="fragment"><strong>サステナブルグレードの提案:</strong> バイオマス由来モノマーや高品質リサイクル材を20%以上配合したグレードを並行開発し、環境ニーズに対応。</li>
+        </ul>
+      </section>
+      
+      <section>
+        <h3>5.3. 共同開発体制の提案</h3>
+        <p>2027年Q3量産開始というタイトなスケジュールに対応するため、以下の共同開発体制を提案します。</p>
+        <ul>
+            <li class="fragment"><strong>迅速な材料選定と試作:</strong> 来月末のサンプル提出に向け、既存技術をベースに初期グレードを迅速に試作・評価。</li>
+            <li class="fragment"><strong>シミュレーション技術の活用:</strong> CAE解析により材料設計と部品設計の最適化を支援。</li>
+            <li class="fragment"><strong>長期信頼性評価:</strong> 高温高湿環境下での耐久性試験などを共同で実施し、製品の信頼性を確保。</li>
+        </ul>
+        <p class="fragment" style="font-size: 1.2em; text-align: center; margin-top: 5%;">
+          クラレは、旭日自動車の<strong>重要なパートナー</strong>となり、<br>EV市場の進化に貢献してまいります。
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/highlight/highlight.min.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ],
+      slideNumber: 'c/t',
+      width: 1280,
+      height: 720,
+      margin: 0.04,
+      minScale: 0.2,
+      maxScale: 2.0
+    });
+  </script>
+</body>
+</html>
