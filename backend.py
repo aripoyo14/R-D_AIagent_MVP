@@ -40,6 +40,8 @@ def init_vector_store() -> SupabaseVectorStore:
     openai_api_key = os.getenv("OPENAI_API_KEY")
     
     # Supabaseクライアントを作成
+    # 注意: timeout/verifyパラメータの非推奨警告はSupabaseライブラリ内部の問題で、
+    # 現在のバージョンでは直接制御できません。将来のバージョンアップで解消される予定です。
     supabase: Client = create_client(supabase_url, supabase_key)
     
     # Embeddingモデルを初期化
@@ -68,6 +70,8 @@ def get_supabase_client() -> Client:
     """
     supabase_url = os.getenv("SUPABASE_URL")
     supabase_key = os.getenv("SUPABASE_KEY")
+    # 注意: timeout/verifyパラメータの非推奨警告はSupabaseライブラリ内部の問題で、
+    # 現在のバージョンでは直接制御できません。将来のバージョンアップで解消される予定です。
     return create_client(supabase_url, supabase_key)
 
 

@@ -60,7 +60,16 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> str:
     """🕵️市場調査エージェント。DuckDuckGo で市場トレンドを検索。"""
 
     results = backend.search_market_trends(tech_tags, use_case) or ""
-    patents = search_patents(" ".join(tech_tags)) or ""
+    
+    # 特許検索のデバッグ情報を表示（セッションステートで制御）
+    debug_patents = st.session_state.get("debug_patents", False)
+    patents = search_patents(" ".join(tech_tags), debug=debug_patents) or ""
+    
+    # デバッグモードの場合、検索結果を表示
+    if debug_patents and patents and patents != "特許情報は見つかりませんでした。":
+        with st.expander("🔍 特許検索結果（デバッグ）", expanded=False):
+            st.code(patents, language=None)
+    
     academics = search_arxiv(" ".join(tech_tags)) or ""
     avatar = "🕵️"
     with st.chat_message("assistant", avatar=avatar):

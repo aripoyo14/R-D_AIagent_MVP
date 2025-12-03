@@ -67,5 +67,16 @@ def render_sidebar():
             
             st.info("💡 `.env`ファイルを作成し、`env.example`を参考に環境変数を設定してください。")
     
+    st.divider()
+    
+    # デバッグモード設定
+    st.subheader("🔍 デバッグ設定")
+    debug_patents = st.checkbox(
+        "特許検索のデバッグ情報を表示",
+        value=st.session_state.get("debug_patents", False),
+        help="特許検索の詳細なログと検索結果を表示します"
+    )
+    st.session_state.debug_patents = debug_patents
+    
     return selected_department, api_keys_ok
 
