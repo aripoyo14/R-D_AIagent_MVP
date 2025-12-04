@@ -5,7 +5,7 @@ StreamlitのチャットUIで5人が議論するフローを実装。
 """
 
 import os
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import streamlit as st
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -57,8 +57,12 @@ def generate_orchestrator_brief(interview_memo: str) -> str:
 
 
 
-def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> str:
-    """🕵️市場調査エージェント。DuckDuckGo で市場トレンドを検索。"""
+def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[str, List[Dict]]:
+    """🕵️市場調査エージェント。DuckDuckGo で市場トレンドを検索。
+    
+    Returns:
+        tuple[str, List[Dict]]: (市場調査サマリー, 学術論文情報のリスト)
+    """
 
     # 重要度の高いタグを選定（最大5つ）
     selected_tags = select_important_tags(tech_tags, interview_memo=use_case, max_tags=5)
@@ -72,7 +76,7 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> str:
     with st.chat_message("assistant", avatar=avatar):
         if not any([results.strip(), patents, academics]):
             st.markdown("No market/patent/academic data found.")
-            return "No market/patent/academic data found."
+            return "No market/patent/academic data found.", []
 
         prompt = (
             "You are a Market Researcher. Summarize the following search results into facts only "
@@ -88,7 +92,7 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> str:
         response = llm.invoke([HumanMessage(content=prompt)])
         summary = response.content.strip()
         st.markdown(summary)
-        return summary
+        return summary, academics_list
 
 
 
@@ -233,14 +237,18 @@ def run_innovation_squad(
     tech_tags: List[str],
     department: str,
     company_name: str = "",
-) -> tuple[str, List[dict]]:
-    """イノベーション分隊のフローを実行し、最終レポートのMarkdownと他事業部知見リストを返す。"""
+) -> tuple[str, List[dict], List[dict]]:
+    """イノベーション分隊のフローを実行し、最終レポートのMarkdown、他事業部知見リスト、学術論文情報を返す。
+    
+    Returns:
+        tuple[str, List[dict], List[dict]]: (最終レポート, 他事業部知見リスト, 学術論文情報リスト)
+    """
 
     brief = generate_orchestrator_brief(interview_memo)
     with st.chat_message("assistant", avatar="🤖"):
         st.markdown(brief or "Team, let's start.")
 
-    market_data = agent_market_researcher(tech_tags, use_case=interview_memo)
+    market_data, academic_results = agent_market_researcher(tech_tags, use_case=interview_memo)
     internal_data, internal_hits = agent_internal_specialist(interview_memo, department)
 
     with st.chat_message("assistant", avatar="🤖"):
@@ -263,4 +271,4 @@ def run_innovation_squad(
         tech_tags=tech_tags,
         company_name=company_name,
     )
-    return final_report_md, internal_hits
+    return final_report_md, internal_hits, academic_results

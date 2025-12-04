@@ -45,6 +45,48 @@ def display_cross_pollination_cards(results: List[Dict]):
             """, unsafe_allow_html=True)
 
 
+def display_academic_papers(academic_results: List[Dict]):
+    """
+    学術論文情報をカード形式で表示する
+    
+    Args:
+        academic_results: 学術論文情報のリスト
+    """
+    if not academic_results:
+        st.info("学術論文は見つかりませんでした。")
+        return
+    
+    st.subheader("📚 参考: 関連する学術論文")
+    
+    for i, paper in enumerate(academic_results, 1):
+        title = paper.get("title", "タイトル不明")
+        authors = paper.get("authors", [])
+        published = paper.get("published", "日付不明")
+        link = paper.get("link", "")
+        summary = paper.get("summary", "")
+        
+        with st.container():
+            st.markdown(f"""
+            <div style="
+                border: 1px solid #4CAF50;
+                border-radius: 10px;
+                padding: 15px;
+                margin: 10px 0;
+                background-color: #f1f8f4;
+            ">
+                <h4 style="margin-top: 0; color: #2e7d32;">📄 論文 #{i}</h4>
+                <p><strong>タイトル:</strong> {title}</p>
+                <p><strong>著者:</strong> {', '.join(authors[:5])}{'...' if len(authors) > 5 else ''}</p>
+                <p><strong>公開日:</strong> {published}</p>
+                <p><strong>リンク:</strong> <a href="{link}" target="_blank">{link}</a></p>
+                <details>
+                    <summary style="cursor: pointer; color: #2e7d32; font-weight: bold;">要約を表示</summary>
+                    <p style="background-color: white; padding: 10px; border-radius: 5px; margin-top: 10px;">{summary[:500]}{'...' if len(summary) > 500 else ''}</p>
+                </details>
+            </div>
+            """, unsafe_allow_html=True)
+
+
 def render_idea_report():
     """
     アイデア創出レポートを表示する
@@ -114,8 +156,14 @@ def render_idea_report():
     
     st.divider()
     
+    # 学術論文情報をカード形式で表示
+    if hasattr(st.session_state, 'academic_results') and st.session_state.academic_results:
+        st.divider()
+        display_academic_papers(st.session_state.academic_results)
+    
     # 他事業部の知見をカード形式で表示
     if st.session_state.cross_pollination_results:
+        st.divider()
         st.subheader("🔗 参考: 他事業部の類似知見")
         display_cross_pollination_cards(st.session_state.cross_pollination_results)
     
@@ -130,5 +178,7 @@ def render_idea_report():
             st.session_state.form_data = {}
             st.session_state.idea_report = None
             st.session_state.cross_pollination_results = []
+            if hasattr(st.session_state, 'academic_results'):
+                st.session_state.academic_results = []
             st.session_state.show_idea_report = False
             st.rerun()

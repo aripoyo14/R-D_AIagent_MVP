@@ -40,7 +40,7 @@ def handle_registration(selected_department: str, review: ReviewResult):
         # アイデア創出プロセスを実行
         with st.spinner("💡 イノベーション分隊が議論中..."):
             interview_content = st.session_state.form_data.get("interview_memo", "")
-            idea_report, cross_pollination_results = run_innovation_squad(
+            idea_report, cross_pollination_results, academic_results = run_innovation_squad(
                 interview_memo=interview_content,
                 tech_tags=review.tech_tags,
                 department=selected_department,
@@ -50,6 +50,7 @@ def handle_registration(selected_department: str, review: ReviewResult):
             # セッションステートに保存
             st.session_state.idea_report = idea_report
             st.session_state.cross_pollination_results = cross_pollination_results
+            st.session_state.academic_results = academic_results
             st.session_state.show_idea_report = True
 
         # フォームデータとレビュー結果は保持（レポート表示のため）
