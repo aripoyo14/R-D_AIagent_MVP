@@ -17,7 +17,8 @@ except ImportError:
 
 import backend
 from services.patents import search_patents
-from services.academic import search_arxiv
+from services.academic import search_arxiv, format_arxiv_results
+from services.ai_review import select_important_tags
 
 from services.report_generator import REPORT_SYSTEM_PROMPT, REPORT_HUMAN_PROMPT
 
@@ -59,9 +60,14 @@ def generate_orchestrator_brief(interview_memo: str) -> str:
 def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> str:
     """🕵️市場調査エージェント。DuckDuckGo で市場トレンドを検索。"""
 
-    results = backend.search_market_trends(tech_tags, use_case) or ""
-    patents = search_patents(" ".join(tech_tags)) or ""
-    academics = search_arxiv(" ".join(tech_tags)) or ""
+    # 重要度の高いタグを選定（最大5つ）
+    selected_tags = select_important_tags(tech_tags, interview_memo=use_case, max_tags=5)
+    
+    # 選定されたタグで検索を実行
+    results = backend.search_market_trends(selected_tags, use_case) or ""
+    patents = search_patents(selected_tags) or ""
+    academics_list = search_arxiv(" ".join(selected_tags))
+    academics = format_arxiv_results(academics_list) if academics_list else ""
     avatar = "🕵️"
     with st.chat_message("assistant", avatar=avatar):
         if not any([results.strip(), patents, academics]):
