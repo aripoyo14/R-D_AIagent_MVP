@@ -6,7 +6,7 @@
 import streamlit as st
 import os
 from services.ai_review import review_interview_content
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Optional
 
 # 事業部のリスト
 DEPARTMENTS = [
@@ -30,7 +30,7 @@ def check_api_keys() -> bool:
         return False
 
 
-def render_sidebar() -> Tuple[str, bool, Dict]:
+def render_sidebar(review_container: Optional[st.delta_generator.DeltaGenerator] = None) -> Tuple[str, bool, Dict]:
     """
     サイドバーを表示する
     
@@ -73,12 +73,12 @@ def render_sidebar() -> Tuple[str, bool, Dict]:
     
     # 面談情報入力フォーム
     st.subheader("📝 面談情報入力")
-    form_data = render_interview_form()
+    form_data = render_interview_form(review_container)
     
     return selected_department, api_keys_ok, form_data
 
 
-def render_interview_form() -> Dict:
+def render_interview_form(review_container: Optional[st.delta_generator.DeltaGenerator] = None) -> Dict:
     """
     面談情報入力フォームを表示する
     
@@ -119,9 +119,11 @@ def render_interview_form() -> Dict:
                 }
                 
                 # AIレビューを実行
-                with st.spinner("🤖 AIが内容をレビュー中..."):
-                    review_result = review_interview_content(interview_memo)
-                    st.session_state.review_result = review_result
+                spinner_target = review_container or st
+                with spinner_target:
+                    with st.spinner("🤖 AIが内容をレビュー中..."):
+                        review_result = review_interview_content(interview_memo)
+                        st.session_state.review_result = review_result
     
     return {
         "company_name": company_name,
@@ -129,4 +131,3 @@ def render_interview_form() -> Dict:
         "interview_memo": interview_memo,
         "submitted": submitted
     }
-

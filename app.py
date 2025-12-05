@@ -41,15 +41,6 @@ def main():
     # セッションステートの初期化
     init_session_state()
     
-    # サイドバー
-    with st.sidebar:
-        selected_department, api_keys_ok, form_data = render_sidebar()
-    
-    # メインコンテンツ
-    if not api_keys_ok:
-        st.warning("⚠️ APIキーが設定されていないため、機能を利用できません。")
-        return
-    
     # タブを作成
     tab1, tab2, tab3 = st.tabs([
         "🤖 AIレビュー結果",
@@ -57,17 +48,29 @@ def main():
         "💡 アイデア創出レポート"
     ])
 
-    # 会話ログは専用タブのコンテナを使って描画する
+    # タブ内のコンテナを準備（スピナーや表示位置を固定）
+    with tab1:
+        review_container = st.container()
     with tab2:
         conversation_container = st.container()
     
+    # サイドバー（AIレビューのスピナーをレビュータブに表示するためコンテナを渡す）
+    with st.sidebar:
+        selected_department, api_keys_ok, form_data = render_sidebar(review_container)
+    
+    # メインコンテンツ
+    if not api_keys_ok:
+        with review_container:
+            st.warning("⚠️ APIキーが設定されていないため、機能を利用できません。")
+        return
+    
     # タブ1: AIレビュー結果（会話ログ出力先を渡す）
-    with tab1:
+    with review_container:
         render_review_results(selected_department, conversation_container)
     
     # タブ2: イノベーション分隊の会話ログ
-    with tab2:
-        render_conversation_log(conversation_container)
+    with conversation_container:
+        render_conversation_log()
     
     # タブ3: アイデア創出レポート
     with tab3:

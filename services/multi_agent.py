@@ -263,15 +263,6 @@ def agent_orchestrator_summary(
 
     response = llm.invoke(messages)
     summary = response.content.strip()
-    with st.chat_message("assistant", avatar="🤖"):
-        st.markdown(summary)
-    # 会話ログに追加
-    if "conversation_log" in st.session_state:
-        st.session_state.conversation_log.append({
-            "role": "assistant",
-            "avatar": "🤖",
-            "content": summary
-        })
     return summary
 
 
