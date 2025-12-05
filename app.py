@@ -8,6 +8,7 @@ from components import (
     render_sidebar,
     render_review_results,
     render_idea_report,
+    render_conversation_log,
     init_session_state
 )
 
@@ -35,11 +36,24 @@ def main():
         st.warning("⚠️ APIキーが設定されていないため、機能を利用できません。")
         return
     
-    # AIレビュー結果の表示
-    render_review_results(selected_department)
+    # タブを作成
+    tab1, tab2, tab3 = st.tabs([
+        "🤖 AIレビュー結果",
+        "💬 イノベーション分隊の会話ログ",
+        "💡 アイデア創出レポート"
+    ])
     
-    # アイデア創出レポートの表示
-    render_idea_report()
+    # タブ1: AIレビュー結果
+    with tab1:
+        render_review_results(selected_department)
+    
+    # タブ2: イノベーション分隊の会話ログ
+    with tab2:
+        render_conversation_log()
+    
+    # タブ3: アイデア創出レポート
+    with tab3:
+        render_idea_report()
 
 
 if __name__ == "__main__":
