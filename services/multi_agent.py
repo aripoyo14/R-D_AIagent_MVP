@@ -75,8 +75,16 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
     avatar = "🕵️"
     with st.chat_message("assistant", avatar=avatar):
         if not any([results.strip(), patents, academics]):
-            st.markdown("No market/patent/academic data found.")
-            return "No market/patent/academic data found.", []
+            summary = "No market/patent/academic data found."
+            st.markdown(summary)
+            # 会話ログに追加
+            if "conversation_log" in st.session_state:
+                st.session_state.conversation_log.append({
+                    "role": "assistant",
+                    "avatar": avatar,
+                    "content": summary
+                })
+            return summary, []
 
         prompt = (
             "You are a Market Researcher. Summarize the following search results into facts only "
@@ -92,6 +100,13 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
         response = llm.invoke([HumanMessage(content=prompt)])
         summary = response.content.strip()
         st.markdown(summary)
+        # 会話ログに追加
+        if "conversation_log" in st.session_state:
+            st.session_state.conversation_log.append({
+                "role": "assistant",
+                "avatar": avatar,
+                "content": summary
+            })
         return summary, academics_list
 
 
@@ -105,6 +120,13 @@ def agent_internal_specialist(query_text: str, department: str) -> tuple[str, Li
         if not hits:
             msg = "No relevant internal data found."
             st.markdown(msg)
+            # 会話ログに追加
+            if "conversation_log" in st.session_state:
+                st.session_state.conversation_log.append({
+                    "role": "assistant",
+                    "avatar": avatar,
+                    "content": msg
+                })
             return msg, []
 
         bullet_lines = []
@@ -117,6 +139,13 @@ def agent_internal_specialist(query_text: str, department: str) -> tuple[str, Li
 
         result_text = "\n".join(bullet_lines)
         st.markdown(result_text)
+        # 会話ログに追加
+        if "conversation_log" in st.session_state:
+            st.session_state.conversation_log.append({
+                "role": "assistant",
+                "avatar": avatar,
+                "content": result_text
+            })
         return result_text, hits
 
 
@@ -131,6 +160,13 @@ def _stream_response(llm, messages: List, avatar: str) -> str:
             if chunk.content:
                 buffer += chunk.content
                 placeholder.markdown(buffer)
+    # 会話ログに追加
+    if buffer and "conversation_log" in st.session_state:
+        st.session_state.conversation_log.append({
+            "role": "assistant",
+            "avatar": avatar,
+            "content": buffer
+        })
     return buffer
 
 
@@ -229,6 +265,13 @@ def agent_orchestrator_summary(
     summary = response.content.strip()
     with st.chat_message("assistant", avatar="🤖"):
         st.markdown(summary)
+    # 会話ログに追加
+    if "conversation_log" in st.session_state:
+        st.session_state.conversation_log.append({
+            "role": "assistant",
+            "avatar": "🤖",
+            "content": summary
+        })
     return summary
 
 
@@ -243,25 +286,62 @@ def run_innovation_squad(
     Returns:
         tuple[str, List[dict], List[dict]]: (最終レポート, 他事業部知見リスト, 学術論文情報リスト)
     """
-
+    # 会話ログを初期化
+    if "conversation_log" not in st.session_state:
+        st.session_state.conversation_log = []
+    
     brief = generate_orchestrator_brief(interview_memo)
-    with st.chat_message("assistant", avatar="🤖"):
-        st.markdown(brief or "Team, let's start.")
+    brief_content = brief or "Team, let's start."
+    with st.chat_message("assistant", avatar="👑"):
+        st.markdown(brief_content)
+    # 会話ログに追加
+    st.session_state.conversation_log.append({
+        "role": "assistant",
+        "avatar": "👑",
+        "content": brief_content
+    })
 
     market_data, academic_results = agent_market_researcher(tech_tags, use_case=interview_memo)
     internal_data, internal_hits = agent_internal_specialist(interview_memo, department)
 
-    with st.chat_message("assistant", avatar="🤖"):
-        st.markdown("材料は揃った。Architect、競合を上回るロジックを組んでくれ。")
+    orchestrator_msg1 = "材料は揃った。Architect、競合を上回るロジックを組んでくれ。"
+    with st.chat_message("assistant", avatar="👑"):
+        st.markdown(orchestrator_msg1)
+    # 会話ログに追加
+    st.session_state.conversation_log.append({
+        "role": "assistant",
+        "avatar": "👑",
+        "content": orchestrator_msg1
+    })
+    
     proposal_v1 = agent_solution_architect(market_data, internal_data, interview_memo)
+    # 会話ログはagent_solution_architect内の_stream_responseで追加済み
 
-    with st.chat_message("assistant", avatar="🤖"):
-        st.markdown("Devil、この案の弱点を洗い出してくれ。")
+    orchestrator_msg2 = "Devil、この案の弱点を洗い出してくれ。"
+    with st.chat_message("assistant", avatar="👑"):
+        st.markdown(orchestrator_msg2)
+    # 会話ログに追加
+    st.session_state.conversation_log.append({
+        "role": "assistant",
+        "avatar": "👑",
+        "content": orchestrator_msg2
+    })
+    
     critique = agent_devils_advocate(proposal_v1)
+    # 会話ログはagent_devils_advocate内の_stream_responseで追加済み
 
-    with st.chat_message("assistant", avatar="🤖"):
-        st.markdown("Architect、指摘を踏まえて改訂案を出して。")
+    orchestrator_msg3 = "Architect、指摘を踏まえて改訂案を出して。"
+    with st.chat_message("assistant", avatar="👑"):
+        st.markdown(orchestrator_msg3)
+    # 会話ログに追加
+    st.session_state.conversation_log.append({
+        "role": "assistant",
+        "avatar": "👑",
+        "content": orchestrator_msg3
+    })
+    
     proposal_final = agent_solution_architect(market_data, internal_data, interview_memo, feedback=critique)
+    # 会話ログはagent_solution_architect内の_stream_responseで追加済み
 
     final_report_md = agent_orchestrator_summary(
         proposal=proposal_final,
@@ -271,4 +351,6 @@ def run_innovation_squad(
         tech_tags=tech_tags,
         company_name=company_name,
     )
+    # 会話ログはagent_orchestrator_summary内で追加済み
+    
     return final_report_md, internal_hits, academic_results

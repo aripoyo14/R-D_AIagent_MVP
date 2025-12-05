@@ -17,4 +17,6 @@ def init_session_state():
         st.session_state.show_idea_report = False
     if "cross_pollination_results" not in st.session_state:
         st.session_state.cross_pollination_results = []
+    if "conversation_log" not in st.session_state:
+        st.session_state.conversation_log = []
 
