@@ -7,15 +7,26 @@ from services.ai_review import ReviewResult
 from services.multi_agent import run_innovation_squad
 from backend import save_interview_note
 from datetime import datetime
+from typing import Optional
+
+try:
+    from google.api_core import exceptions as google_exceptions
+except Exception:  # ランタイム環境によっては import できない場合がある
+    google_exceptions = None
 
 
-def handle_registration(selected_department: str, review: ReviewResult):
+def handle_registration(
+    selected_department: str,
+    review: ReviewResult,
+    conversation_container: Optional[st.delta_generator.DeltaGenerator] = None,
+):
     """
     登録処理とアイデア創出プロセスを実行する
     
     Args:
         selected_department: 選択された事業部名
         review: AIレビュー結果
+        conversation_container: 会話ログタブに配置したコンテナ（スピナー表示用）
     """
     # メタデータを準備
     metadata = {
@@ -38,14 +49,24 @@ def handle_registration(selected_department: str, review: ReviewResult):
         st.balloons()
 
         # アイデア創出プロセスを実行
-        with st.spinner("💡 イノベーション分隊が議論中..."):
-            interview_content = st.session_state.form_data.get("interview_memo", "")
-            idea_report, cross_pollination_results, academic_results = run_innovation_squad(
-                interview_memo=interview_content,
-                tech_tags=review.tech_tags,
-                department=selected_department,
-                company_name=st.session_state.form_data.get("company_name", ""),
-            )
+        target_container = conversation_container or st
+        with target_container:
+            try:
+                with st.spinner("💡 イノベーション分隊が議論中..."):
+                    interview_content = st.session_state.form_data.get("interview_memo", "")
+                    idea_report, cross_pollination_results, academic_results = run_innovation_squad(
+                        interview_memo=interview_content,
+                        tech_tags=review.tech_tags,
+                        department=selected_department,
+                        company_name=st.session_state.form_data.get("company_name", ""),
+                    )
+            except Exception as e:
+                if "google_exceptions" in globals() and google_exceptions and isinstance(e, google_exceptions.ServiceUnavailable):
+                    st.error("⚠️ モデルが混雑しています。少し待ってから再実行してください。")
+                else:
+                    st.error(f"❌ イノベーション分隊の実行に失敗しました: {e}")
+                st.session_state.is_agent_running = False
+                return
 
             # セッションステートに保存
             st.session_state.idea_report = idea_report
@@ -61,12 +82,16 @@ def handle_registration(selected_department: str, review: ReviewResult):
         st.session_state.is_agent_running = False
 
 
-def render_review_results(selected_department: str):
+def render_review_results(
+    selected_department: str,
+    conversation_container: Optional[st.delta_generator.DeltaGenerator] = None,
+):
     """
     AIレビュー結果を表示する
 
     Args:
         selected_department: 選択された事業部名
+        conversation_container: 会話ログタブに配置したコンテナ（スピナー表示用）
     """
     # レイアウト幅を広めに確保（チャットやレポートを読みやすくするため）
     st.markdown(
@@ -117,7 +142,7 @@ def render_review_results(selected_department: str):
 
         if register_clicked:
             st.session_state.is_agent_running = True
-            handle_registration(selected_department, review)
+            handle_registration(selected_department, review, conversation_container)
     else:
         # 情報が不足している場合
         st.warning("⚠️ 情報が不足しています。以下の点について確認してください。")
