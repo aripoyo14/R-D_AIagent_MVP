@@ -23,6 +23,20 @@ def main():
     
     st.title("🧪 R&D Brain - 面談録登録システム")
     st.markdown("営業担当者が面談録を入力し、AIが内容を精査します")
+    # タブ配下だけをスクロールさせるためのスタイル
+    st.markdown(
+        """
+        <style>
+        /* タブの中身をビューポート内でスクロール可能にする */
+        [data-testid="stTabs"] [role="tabpanel"] > div {
+            max-height: calc(100vh - 230px);
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
     
     # セッションステートの初期化
     init_session_state()
@@ -42,14 +56,18 @@ def main():
         "💬 イノベーション分隊の会話ログ",
         "💡 アイデア創出レポート"
     ])
+
+    # 会話ログは専用タブのコンテナを使って描画する
+    with tab2:
+        conversation_container = st.container()
     
-    # タブ1: AIレビュー結果
+    # タブ1: AIレビュー結果（会話ログ出力先を渡す）
     with tab1:
-        render_review_results(selected_department)
+        render_review_results(selected_department, conversation_container)
     
     # タブ2: イノベーション分隊の会話ログ
     with tab2:
-        render_conversation_log()
+        render_conversation_log(conversation_container)
     
     # タブ3: アイデア創出レポート
     with tab3:
