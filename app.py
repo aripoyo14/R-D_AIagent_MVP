@@ -6,7 +6,6 @@ R&D Brain - Main Streamlit Application
 import streamlit as st
 from components import (
     render_sidebar,
-    render_interview_form,
     render_review_results,
     render_idea_report,
     init_session_state
@@ -24,20 +23,17 @@ def main():
     st.title("🧪 R&D Brain - 面談録登録システム")
     st.markdown("営業担当者が面談録を入力し、AIが内容を精査します")
     
+    # セッションステートの初期化
+    init_session_state()
+    
     # サイドバー
     with st.sidebar:
-        selected_department, api_keys_ok = render_sidebar()
+        selected_department, api_keys_ok, form_data = render_sidebar()
     
     # メインコンテンツ
     if not api_keys_ok:
         st.warning("⚠️ APIキーが設定されていないため、機能を利用できません。")
         return
-    
-    # セッションステートの初期化
-    init_session_state()
-    
-    # 入力フォーム
-    render_interview_form()
     
     # AIレビュー結果の表示
     render_review_results(selected_department)
