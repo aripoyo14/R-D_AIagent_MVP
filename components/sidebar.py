@@ -1,10 +1,12 @@
 """
 サイドバーコンポーネント
-設定とAPIキー確認を表示する
+設定とAPIキー確認、面談情報入力を表示する
 """
 
 import streamlit as st
 import os
+from services.ai_review import review_interview_content
+from typing import Dict, Tuple
 
 # 事業部のリスト
 DEPARTMENTS = [
@@ -28,12 +30,12 @@ def check_api_keys() -> bool:
         return False
 
 
-def render_sidebar():
+def render_sidebar() -> Tuple[str, bool, Dict]:
     """
     サイドバーを表示する
     
     Returns:
-        tuple: (選択された事業部名, APIキー設定状況)
+        tuple: (選択された事業部名, APIキー設定状況, フォームデータ)
     """
     st.header("⚙️ 設定")
     
@@ -67,5 +69,64 @@ def render_sidebar():
             
             st.info("💡 `.env`ファイルを作成し、`env.example`を参考に環境変数を設定してください。")
     
-    return selected_department, api_keys_ok
+    st.divider()
+    
+    # 面談情報入力フォーム
+    st.subheader("📝 面談情報入力")
+    form_data = render_interview_form()
+    
+    return selected_department, api_keys_ok, form_data
+
+
+def render_interview_form() -> Dict:
+    """
+    面談情報入力フォームを表示する
+    
+    Returns:
+        Dict: フォームデータ（company_name, contact_info, interview_memo, submitted）
+    """
+    with st.form("interview_form", clear_on_submit=False):
+        company_name = st.text_input(
+            "企業名 (Company Name)",
+            value=st.session_state.form_data.get("company_name", ""),
+            placeholder="例: トヨタ自動車"
+        )
+        
+        contact_info = st.text_input(
+            "相手方 部署・役職",
+            value=st.session_state.form_data.get("contact_info", ""),
+            placeholder="例: ボディ設計部 課長"
+        )
+        
+        interview_memo = st.text_area(
+            "面談メモ (Raw Content)",
+            value=st.session_state.form_data.get("interview_memo", ""),
+            height=200,
+            placeholder="面談の内容を自由に記述してください..."
+        )
+        
+        submitted = st.form_submit_button("AIレビュー実行", type="primary", use_container_width=True)
+        
+        if submitted:
+            if not interview_memo.strip():
+                st.error("⚠️ 面談メモを入力してください")
+            else:
+                # フォームデータを保存
+                st.session_state.form_data = {
+                    "company_name": company_name,
+                    "contact_info": contact_info,
+                    "interview_memo": interview_memo
+                }
+                
+                # AIレビューを実行
+                with st.spinner("🤖 AIが内容をレビュー中..."):
+                    review_result = review_interview_content(interview_memo)
+                    st.session_state.review_result = review_result
+    
+    return {
+        "company_name": company_name,
+        "contact_info": contact_info,
+        "interview_memo": interview_memo,
+        "submitted": submitted
+    }
 
