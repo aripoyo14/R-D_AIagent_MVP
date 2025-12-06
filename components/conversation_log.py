@@ -33,6 +33,8 @@ def get_chat_css():
     """LINE風チャットUIのCSSを返す"""
     return """
     <style>
+
+    /* イノベーション分隊の会話ログ表示コンポーネント */
     .chat-container {
         font-family: "Helvetica Neue", Arial, sans-serif;
         display: flex;
@@ -275,9 +277,6 @@ def render_conversation_log():
 
     # LINE風スタイルの定義
     st.markdown(get_chat_css(), unsafe_allow_html=True)
-    
-    st.header("💬 イノベーション分隊の会話ログ")
-    st.markdown("---")
     
     # チャットログのHTML構築
     html_content = '<div class="chat-container">'

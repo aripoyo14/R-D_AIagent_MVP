@@ -5,6 +5,9 @@
 import streamlit as st
 from services.ai_review import review_interview_content
 from typing import Dict
+import io
+import docx
+import pypdf
 
 
 def render_interview_form() -> Dict:
@@ -29,13 +32,43 @@ def render_interview_form() -> Dict:
             placeholder="例: ボディ設計部 課長"
         )
         
-        interview_memo = st.text_area(
-            "面談メモ (Raw Content)",
-            value=st.session_state.form_data.get("interview_memo", ""),
-            height=300,
-            placeholder="面談の内容を自由に記述してください..."
+        uploaded_file = st.file_uploader(
+            "ファイルから読み込む (docx, txt, pdf)",
+            type=["docx", "txt", "pdf"],
+            key="interview_file_uploader"
         )
+
+        if uploaded_file is not None:
+            try:
+                text = ""
+                if uploaded_file.type == "text/plain":
+                    text = uploaded_file.getvalue().decode("utf-8")
+                elif uploaded_file.type == "application/pdf":
+                    pdf_reader = pypdf.PdfReader(uploaded_file)
+                    for page in pdf_reader.pages:
+                        text += page.extract_text() + "\n"
+                elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                    doc = docx.Document(uploaded_file)
+                    for para in doc.paragraphs:
+                        text += para.text + "\n"
+                
+                if text:
+                    st.session_state.form_data["interview_memo"] = text
+                    # ファイルアップロード後に再実行してテキストエリアを更新
+                    # st.rerun() # フォーム内でのrerunは推奨されないため、session_state更新のみに留める
+            except Exception as e:
+                st.error(f"ファイルの読み込みに失敗しました: {e}")
+
+        # 面談メモはファイルアップロードからのみ取得
+        interview_memo = st.session_state.form_data.get("interview_memo", "")
         
+        if interview_memo:
+            st.success(f"✅ 面談メモを読み込みました ({len(interview_memo)}文字)")
+            with st.expander("読み込んだ内容を確認"):
+                st.text(interview_memo)
+        else:
+            st.info("👆 ファイルをアップロードしてください")
+
         submitted = st.form_submit_button("AIレビュー実行", type="primary", use_container_width=True)
         
         if submitted:

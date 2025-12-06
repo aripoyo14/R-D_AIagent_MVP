@@ -104,7 +104,7 @@ def generate_idea_report(
 
     # LLMを初期化
     llm = ChatGoogleGenerativeAI(
-        model="gpt-4o",
+        model="gemini-2.5-flash",
         temperature=0.7,
         google_api_key=api_key,
     )

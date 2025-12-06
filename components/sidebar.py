@@ -7,6 +7,9 @@ import streamlit as st
 import os
 from services.ai_review import review_interview_content
 from typing import Dict, Tuple, Optional
+import io
+import docx
+import pypdf
 
 # 事業部のリスト
 DEPARTMENTS = [
@@ -37,48 +40,46 @@ def render_sidebar(review_container: Optional[st.delta_generator.DeltaGenerator]
     Returns:
         tuple: (選択された事業部名, APIキー設定状況, フォームデータ)
     """
-    st.header("⚙️ 設定")
+    # Initialize variables
+    selected_department = DEPARTMENTS[0]
+    api_keys_ok = False
+    form_data = {}
+    model_name = "gemini-2.5-flash-lite" # Default
+
+    # タブを作成
+    tab1, tab2 = st.tabs(["📝 面談情報入力", "⚙️ 設定"])
     
-    # 事業部選択
-    selected_department = st.selectbox(
-        "事業部を選択",
-        DEPARTMENTS,
-        index=0
-    )
-    
-    st.divider()
-    
-    # APIキー設定状況
-    st.subheader("🔑 APIキー設定状況")
-    api_keys_ok = check_api_keys()
-    if api_keys_ok:
-        st.success("✅ すべてのAPIキーが設定されています")
-    else:
-        st.error("❌ APIキーが設定されていません")
-        st.info("環境変数 `SUPABASE_URL`, `SUPABASE_KEY`, `OPENAI_API_KEY` を設定してください")
+    # タブ2: 設定 (先にレンダリングしてmodel_nameを取得)
+    with tab2:
+        # 事業部選択
+        selected_department = st.selectbox(
+            "事業部を選択",
+            DEPARTMENTS,
+            index=0
+        )
         
-        # デバッグ情報を表示（展開可能なセクション）
-        with st.expander("🔍 デバッグ情報（環境変数の確認）"):
-            supabase_url = os.getenv("SUPABASE_URL")
-            supabase_key = os.getenv("SUPABASE_KEY")
-            openai_api_key = os.getenv("OPENAI_API_KEY")
-            
-            st.write(f"**SUPABASE_URL**: {'✅ 設定済み' if supabase_url else '❌ 未設定'}")
-            st.write(f"**SUPABASE_KEY**: {'✅ 設定済み' if supabase_key else '❌ 未設定'}")
-            st.write(f"**OPENAI_API_KEY**: {'✅ 設定済み' if openai_api_key else '❌ 未設定'}")
-            
-            st.info("💡 `.env`ファイルを作成し、`env.example`を参考に環境変数を設定してください。")
+        st.divider()
+
+        # AIモデル選択
+        model_name = st.selectbox(
+            "AIモデルを選択",
+            ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"],
+            index=1  # Default to gemini-2.5-flash
+        )
+        
+        st.divider()
+        
+        # APIキー設定状況
+        api_keys_ok = check_api_keys()
+
+    # タブ1: 面談情報入力 (取得したmodel_nameを使用)
+    with tab1:
+        form_data = render_interview_form(review_container, model_name=model_name)
     
-    st.divider()
-    
-    # 面談情報入力フォーム
-    st.subheader("📝 面談情報入力")
-    form_data = render_interview_form(review_container)
-    
-    return selected_department, api_keys_ok, form_data
+    return selected_department, api_keys_ok, form_data, model_name
 
 
-def render_interview_form(review_container: Optional[st.delta_generator.DeltaGenerator] = None) -> Dict:
+def render_interview_form(review_container: Optional[st.delta_generator.DeltaGenerator] = None, model_name: str = "gemini-2.5-flash-lite") -> Dict:
     """
     面談情報入力フォームを表示する
     
@@ -98,12 +99,40 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
             placeholder="例: ボディ設計部 課長"
         )
         
-        interview_memo = st.text_area(
-            "面談メモ (Raw Content)",
-            value=st.session_state.form_data.get("interview_memo", ""),
-            height=200,
-            placeholder="面談の内容を自由に記述してください..."
+        uploaded_file = st.file_uploader(
+            "ファイルから読み込む (docx, txt, pdf)",
+            type=["docx", "txt", "pdf"],
+            key="interview_file_uploader_sidebar"
         )
+
+        if uploaded_file is not None:
+            try:
+                text = ""
+                if uploaded_file.type == "text/plain":
+                    text = uploaded_file.getvalue().decode("utf-8")
+                elif uploaded_file.type == "application/pdf":
+                    pdf_reader = pypdf.PdfReader(uploaded_file)
+                    for page in pdf_reader.pages:
+                        text += page.extract_text() + "\n"
+                elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                    doc = docx.Document(uploaded_file)
+                    for para in doc.paragraphs:
+                        text += para.text + "\n"
+                
+                if text:
+                    st.session_state.form_data["interview_memo"] = text
+            except Exception as e:
+                st.error(f"ファイルの読み込みに失敗しました: {e}")
+
+        # 面談メモはファイルアップロードからのみ取得
+        interview_memo = st.session_state.form_data.get("interview_memo", "")
+        
+        if interview_memo:
+            st.success(f"✅ 面談メモを読み込みました ({len(interview_memo)}文字)")
+            with st.expander("読み込んだ内容を確認"):
+                st.text(interview_memo)
+        else:
+            st.info("👆 ファイルをアップロードしてください")
         
         submitted = st.form_submit_button("AIレビュー実行", type="primary", use_container_width=True)
         
@@ -122,7 +151,7 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
                 spinner_target = review_container or st
                 with spinner_target:
                     with st.spinner("🤖 AIが内容をレビュー中..."):
-                        review_result = review_interview_content(interview_memo)
+                        review_result = review_interview_content(interview_memo, model_name=model_name)
                         st.session_state.review_result = review_result
     
     return {

@@ -57,7 +57,7 @@ def main():
     
     # サイドバー（AIレビューのスピナーをレビュータブに表示するためコンテナを渡す）
     with st.sidebar:
-        selected_department, api_keys_ok, form_data = render_sidebar(review_container)
+        selected_department, api_keys_ok, form_data, model_name = render_sidebar(review_container)
     
     # メインコンテンツ
     if not api_keys_ok:
@@ -67,7 +67,7 @@ def main():
     
     # タブ1: AIレビュー結果（会話ログ出力先を渡す）
     with review_container:
-        render_review_results(selected_department, conversation_container, progress_container)
+        render_review_results(selected_department, conversation_container, progress_container, model_name=model_name)
     
     # タブ2: イノベーション分隊の会話ログ
     with conversation_container:

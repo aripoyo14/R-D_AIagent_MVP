@@ -20,6 +20,7 @@ def handle_registration(
     review: ReviewResult,
     conversation_container: Optional[st.delta_generator.DeltaGenerator] = None,
     progress_container: Optional[st.delta_generator.DeltaGenerator] = None,
+    model_name: str = "gemini-2.5-flash-lite",
 ):
     """
     登録処理とアイデア創出プロセスを実行する
@@ -29,6 +30,7 @@ def handle_registration(
         review: AIレビュー結果
         conversation_container: 会話ログタブに配置したコンテナ（スピナー表示用）
         progress_container: プログレスバーを表示するコンテナ
+        model_name: 使用するAIモデル名
     """
     # メタデータを準備
     metadata = {
@@ -85,6 +87,7 @@ def handle_registration(
                         department=selected_department,
                         company_name=st.session_state.form_data.get("company_name", ""),
                         progress_callback=update_progress,
+                        model_name=model_name,
                     )
             except Exception as e:
                 if "google_exceptions" in globals() and google_exceptions and isinstance(e, google_exceptions.ServiceUnavailable):
@@ -112,6 +115,7 @@ def render_review_results(
     selected_department: str,
     conversation_container: Optional[st.delta_generator.DeltaGenerator] = None,
     progress_container: Optional[st.delta_generator.DeltaGenerator] = None,
+    model_name: str = "gemini-2.5-flash-lite",
 ):
     """
     AIレビュー結果を表示する
@@ -120,6 +124,7 @@ def render_review_results(
         selected_department: 選択された事業部名
         conversation_container: 会話ログタブに配置したコンテナ（スピナー表示用）
         progress_container: プログレスバーを表示するコンテナ
+        model_name: 使用するAIモデル名
     """
     # レイアウト幅を広めに確保（チャットやレポートを読みやすくするため）
     st.markdown(
@@ -134,7 +139,6 @@ def render_review_results(
     if not st.session_state.review_result:
         return
     
-    st.divider()
     st.header("🤖 AIレビュー結果")
     
     review = st.session_state.review_result
@@ -170,7 +174,7 @@ def render_review_results(
 
         if register_clicked:
             st.session_state.is_agent_running = True
-            handle_registration(selected_department, review, conversation_container, progress_container)
+            handle_registration(selected_department, review, conversation_container, progress_container, model_name=model_name)
     else:
         # 情報が不足している場合
         st.warning("⚠️ 情報が不足しています。以下の点について確認してください。")

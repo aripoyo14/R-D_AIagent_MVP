@@ -45,12 +45,13 @@ REVIEW_PROMPT_TEMPLATE = """あなたは化学メーカーの研究開発部門�
 {format_instructions}"""
 
 
-def review_interview_content(content: str) -> ReviewResult:
+def review_interview_content(content: str, model_name: str = "gemini-2.5-flash-lite") -> ReviewResult:
     """
     Gemini 2.5 Proを使用して面談内容をレビューする
     
     Args:
         content: 面談メモの内容
+        model_name: 使用するAIモデル名
     
     Returns:
         ReviewResult: レビュー結果
@@ -73,7 +74,7 @@ def review_interview_content(content: str) -> ReviewResult:
     # LLMを初期化（Gemini 2.5 Pro）
     llm = ChatGoogleGenerativeAI(
         # model="gemini-2.5-pro",
-        model="gemini-2.5-flash-lite",
+        model=model_name,
         temperature=0.3,
         google_api_key=api_key,
     )
@@ -109,7 +110,7 @@ def review_interview_content(content: str) -> ReviewResult:
         )
 
 
-def select_important_tags(tech_tags: List[str], interview_memo: str = "", max_tags: int = 5) -> List[str]:
+def select_important_tags(tech_tags: List[str], interview_memo: str = "", max_tags: int = 5, model_name: str = "gemini-2.5-flash-lite") -> List[str]:
     """
     抽出された技術タグから、化学系製造業にとって重要度の高いタグを選定する
     
@@ -117,6 +118,7 @@ def select_important_tags(tech_tags: List[str], interview_memo: str = "", max_ta
         tech_tags: 抽出された技術タグのリスト
         interview_memo: 面談メモ（オプション、文脈理解のため）
         max_tags: 選定する最大タグ数（デフォルト: 5）
+        model_name: 使用するAIモデル名
     
     Returns:
         List[str]: 重要度の高いタグのリスト（最大max_tags件）
@@ -142,7 +144,7 @@ def select_important_tags(tech_tags: List[str], interview_memo: str = "", max_ta
     try:
         # LLMを初期化（Gemini 2.5 Flash - 高速で低コスト）
         llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
+            model=model_name,
             temperature=0.3,
             google_api_key=api_key,
         )
