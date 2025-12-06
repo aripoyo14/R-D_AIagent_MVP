@@ -291,6 +291,7 @@ def run_innovation_squad(
     tech_tags: List[str],
     department: str,
     company_name: str = "",
+    progress_callback: Optional[callable] = None,
 ) -> tuple[str, List[dict], List[dict]]:
     """イノベーション分隊のフローを実行し、最終レポートのMarkdown、他事業部知見リスト、学術論文情報を返す。
     
@@ -304,18 +305,26 @@ def run_innovation_squad(
     # CSSを注入
     st.markdown(get_chat_css(), unsafe_allow_html=True)
 
+    if progress_callback:
+        progress_callback(15, "オーケストレーター: チームへのブリーフィングを作成中...")
+
     brief = generate_orchestrator_brief(interview_memo)
     brief_content = brief or "チーム、開始しましょう。"
     st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, brief_content), unsafe_allow_html=True)
-    # 会話ログに追加
     st.session_state.conversation_log.append({
         "role": "assistant",
         "avatar": ORCHESTRATOR_AVATAR,
         "content": brief_content
     })
 
+    if progress_callback:
+        progress_callback(30, "マーケットリサーチャー & 社内スペシャリスト: 情報収集中...")
+
     market_data, academic_results = agent_market_researcher(tech_tags, use_case=interview_memo)
     internal_data, internal_hits = agent_internal_specialist(interview_memo, department)
+
+    if progress_callback:
+        progress_callback(40, "オーケストレーター: 議論の方向性を指示中...")
 
     orchestrator_msg1 = "材料は揃った。Architect、競合を上回るロジックを組んでくれ。"
     st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg1), unsafe_allow_html=True)
@@ -326,8 +335,14 @@ def run_innovation_squad(
         "content": orchestrator_msg1
     })
     
+    if progress_callback:
+        progress_callback(55, "ソリューションアーキテクト: 初期提案を作成中...")
+
     proposal_v1 = agent_solution_architect(market_data, internal_data, interview_memo)
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
+
+    if progress_callback:
+        progress_callback(70, "デビルズアドボケイト: リスク分析と批判的レビューを実行中...")
 
     orchestrator_msg2 = "Devil、この案の弱点を洗い出してくれ。"
     st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg2), unsafe_allow_html=True)
@@ -341,6 +356,9 @@ def run_innovation_squad(
     critique = agent_devils_advocate(proposal_v1)
     # 会話ログはagent_devils_advocate内の_stream_responseで追加済み
 
+    if progress_callback:
+        progress_callback(80, "オーケストレーター: 改善指示を出しています...")
+
     orchestrator_msg3 = "Architect、指摘を踏まえて改訂案を出して。"
     st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg3), unsafe_allow_html=True)
     # 会話ログに追加
@@ -350,8 +368,16 @@ def run_innovation_squad(
         "content": orchestrator_msg3
     })
     
+    if progress_callback:
+        progress_callback(90, "ソリューションアーキテクト: 最終提案を練り上げています...")
+
     proposal_final = agent_solution_architect(market_data, internal_data, interview_memo, feedback=critique)
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
+
+    # 会話ログはagent_solution_architect内の_stream_responseで追加済み
+
+    if progress_callback:
+        progress_callback(95, "オーケストレーター: 最終レポートを作成中...")
 
     final_report_md = agent_orchestrator_summary(
         proposal=proposal_final,
@@ -363,4 +389,7 @@ def run_innovation_squad(
     )
     # 会話ログはagent_orchestrator_summary内で追加済み
     
+    if progress_callback:
+        progress_callback(100, "完了！")
+
     return final_report_md, internal_hits, academic_results

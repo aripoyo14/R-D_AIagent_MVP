@@ -19,6 +19,7 @@ def handle_registration(
     selected_department: str,
     review: ReviewResult,
     conversation_container: Optional[st.delta_generator.DeltaGenerator] = None,
+    progress_container: Optional[st.delta_generator.DeltaGenerator] = None,
 ):
     """
     登録処理とアイデア創出プロセスを実行する
@@ -27,6 +28,7 @@ def handle_registration(
         selected_department: 選択された事業部名
         review: AIレビュー結果
         conversation_container: 会話ログタブに配置したコンテナ（スピナー表示用）
+        progress_container: プログレスバーを表示するコンテナ
     """
     # メタデータを準備
     metadata = {
@@ -53,12 +55,36 @@ def handle_registration(
         with target_container:
             try:
                 with st.spinner("💡 イノベーション分隊が議論中..."):
+                    # プログレスバーの更新関数
+                    def update_progress(percent, text):
+                        if progress_container:
+                            with progress_container.container():
+                                # プログレスバーの色をプライマリカラー（ボタンの色）に合わせるCSS
+                                st.markdown(
+                                    """
+                                    <style>
+                                    div[data-testid="stProgress"] > div > div > div > div {
+                                        background-color: #ff4b4b;
+                                    }
+                                    </style>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
+                                st.markdown(f"**{percent}%** {text}")
+                                st.progress(percent)
+                                if percent == 100:
+                                    st.empty()
+
+                    # 初期化
+                    update_progress(0, "チーム結成中...")
+                    
                     interview_content = st.session_state.form_data.get("interview_memo", "")
                     idea_report, cross_pollination_results, academic_results = run_innovation_squad(
                         interview_memo=interview_content,
                         tech_tags=review.tech_tags,
                         department=selected_department,
                         company_name=st.session_state.form_data.get("company_name", ""),
+                        progress_callback=update_progress,
                     )
             except Exception as e:
                 if "google_exceptions" in globals() and google_exceptions and isinstance(e, google_exceptions.ServiceUnavailable):
@@ -85,6 +111,7 @@ def handle_registration(
 def render_review_results(
     selected_department: str,
     conversation_container: Optional[st.delta_generator.DeltaGenerator] = None,
+    progress_container: Optional[st.delta_generator.DeltaGenerator] = None,
 ):
     """
     AIレビュー結果を表示する
@@ -92,6 +119,7 @@ def render_review_results(
     Args:
         selected_department: 選択された事業部名
         conversation_container: 会話ログタブに配置したコンテナ（スピナー表示用）
+        progress_container: プログレスバーを表示するコンテナ
     """
     # レイアウト幅を広めに確保（チャットやレポートを読みやすくするため）
     st.markdown(
@@ -142,7 +170,7 @@ def render_review_results(
 
         if register_clicked:
             st.session_state.is_agent_running = True
-            handle_registration(selected_department, review, conversation_container)
+            handle_registration(selected_department, review, conversation_container, progress_container)
     else:
         # 情報が不足している場合
         st.warning("⚠️ 情報が不足しています。以下の点について確認してください。")
