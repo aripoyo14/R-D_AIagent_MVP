@@ -64,7 +64,7 @@ def render_sidebar(review_container: Optional[st.delta_generator.DeltaGenerator]
         model_name = st.selectbox(
             "AIモデルを選択",
             ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite"],
-            index=1  # Default to gemini-2.5-flash
+            index=2  # Default to gemini-2.5-flash
         )
         
         st.divider()
