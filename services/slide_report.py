@@ -45,6 +45,45 @@ HUMAN_PROMPT = """以下のスライド構成データを使って、最高の�
 
 出力はHTMLコードのみにしてください。"""
 
+# スライド操作のUIを左右中央に配置するためのCSS
+NAVIGATION_CSS = """
+<style>
+  .reveal .controls {
+    top: 50%;
+    left: 32px;
+    right: 32px;
+    bottom: auto;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+  }
+  .reveal .controls button {
+    pointer-events: auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(6px);
+    background: rgba(20, 20, 30, 0.55);
+  }
+  .reveal .controls .navigate-up,
+  .reveal .controls .navigate-down {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .reveal .controls {
+      top: auto;
+      bottom: 22px;
+      left: 18px;
+      right: 18px;
+      transform: none;
+    }
+  }
+</style>
+"""
+
 def create_slide_report(
     slides_data: List[Dict],
     title: str = "アイデア創出レポート",
@@ -61,8 +100,8 @@ def create_slide_report(
 
     # LLMの初期化 (Gemini 2.5 Pro)
     llm = ChatGoogleGenerativeAI(
-        # model="gemini-2.5-pro",
-        model="gemini-2.5-flash-lite",
+        model="gemini-2.5-pro",
+        # model="gemini-2.5-flash-lite",
         temperature=0.9,
         google_api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"),
         convert_system_message_to_human=True # System prompt support varies
@@ -87,6 +126,12 @@ def create_slide_report(
 
         # コードブロック記法が含まれている場合の除去処理
         html_content = html_content.replace("```html", "").replace("```", "").strip()
+
+        # 次へボタンを中央寄りに配置するCSSを差し込む
+        if "</head>" in html_content:
+            html_content = html_content.replace("</head>", f"{NAVIGATION_CSS}\n</head>", 1)
+        else:
+            html_content = NAVIGATION_CSS + html_content
 
         output_path.write_text(html_content, encoding="utf-8")
         return str(output_path)

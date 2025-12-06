@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>旭日自動車株式会社 戦略レポート</title>
+
+    <!-- Frameworks -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/theme/black.css" id="theme">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+    <!-- Custom Styles for Offline Resilience & Design -->
+    <style>
+        :root {
+            --r-main-font: "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+            --r-heading-font: "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+            --r-main-font-size: 28px;
+            --r-background-color: #111;
+            --r-main-color: #eee;
+            --r-heading-color: #fff;
+            --r-link-color: #42affa;
+            --r-selection-background-color: #bee4fd;
+            --r-selection-color: #000;
+        }
+        .reveal {
+            font-family: var(--r-main-font);
+        }
+        .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+            font-family: var(--r-heading-font);
+            font-weight: 600;
+        }
+        .reveal .slides section {
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .reveal .controls {
+            bottom: 20px !important;
+        }
+        .reveal .controls .navigate-left,
+        .reveal .controls .navigate-right {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .reveal .progress {
+            height: 5px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .reveal .progress span {
+            background: var(--r-link-color);
+        }
+
+        /* Themes */
+        .theme-corporate-blue {
+            background-color: #0a2e5c;
+            background-image: linear-gradient(135deg, #0a2e5c 0%, #0d3b73 100%);
+        }
+        .theme-dark-minimal {
+            background-color: #1a1a1a;
+        }
+        .theme-warm-gradient {
+            background-image: linear-gradient(135deg, #f0932b 0%, #e84118 100%);
+        }
+
+        /* Layouts & Components */
+        .full-bg-image {
+            background-size: cover;
+            background-position: center;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.55);
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+        .kpi-card {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: left;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .kpi-label {
+            font-size: 0.9em;
+            color: #ccc;
+        }
+        .kpi-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .kpi-unit {
+            font-size: 0.5em;
+            font-weight: 500;
+            margin-left: 0.25em;
+        }
+    </style>
+
+<style>
+  .reveal .controls {
+    top: 50%;
+    left: 32px;
+    right: 32px;
+    bottom: auto;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+  }
+  .reveal .controls button {
+    pointer-events: auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(6px);
+    background: rgba(20, 20, 30, 0.55);
+  }
+  .reveal .controls .navigate-up,
+  .reveal .controls .navigate-down {
+    display: none;
+  }
+  @media (max-width: 640px) {
+    .reveal .controls {
+      top: auto;
+      bottom: 22px;
+      left: 18px;
+      right: 18px;
+      transform: none;
+    }
+  }
+</style>
+
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Slide 1: Title -->
+            <section data-background-image="https://source.unsplash.com/featured/?automotive,technology,future" data-background-color="#0a2e5c" class="full-bg-image text-white">
+                <div class="overlay"></div>
+                <div class="content-wrapper h-full flex flex-col justify-center items-center text-center">
+                    <h1 class="text-6xl font-bold tracking-tight">旭日自動車株式会社<br>戦略レポート</h1>
+                    <p class="mt-6 text-2xl opacity-80">R&D Brain レポート</p>
+                </div>
+            </section>
+
+            <!-- Slide 2: Overview -->
+            <section class="theme-corporate-blue text-white">
+                <div class="content-wrapper h-full flex flex-col justify-center items-center text-center">
+                    <h2 class="text-4xl font-semibold mb-4">概要</h2>
+                    <p class="text-5xl font-bold leading-tight max-w-4xl">EVバッテリー用<br>高機能樹脂材料に関する<br>戦略レポート</p>
+                </div>
+            </section>
+
+            <!-- Slide 3: Section 1 -->
+            <section class="theme-corporate-blue text-white">
+                <h2 class="text-8xl font-bold">1. Trigger</h2>
+            </section>
+
+            <!-- Slide 4: Trigger Content -->
+            <section class="theme-corporate-blue text-white">
+                <div class="h-full flex flex-col justify-center">
+                    <h2 class="text-4xl font-semibold mb-8 text-left">1. Trigger: 顧客ニーズ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                        <div class="bg-white/10 p-6 rounded-lg">
+                            <h3 class="text-2xl font-bold mb-4 text-cyan-300">対象プラットフォーム</h3>
+                            <p class="text-xl">次世代800V EVプラットフォーム</p>
+                        </div>
+                        <div class="bg-white/10 p-6 rounded-lg">
+                            <h3 class="text-2xl font-bold mb-4 text-cyan-300">検討部品</h3>
+                            <p class="text-xl">バッテリーパック用バスバー支持部材およびモジュールハウジング</p>
+                        </div>
+                    </div>
+                    <div class="mt-8 bg-white/10 p-6 rounded-lg text-left">
+                        <h3 class="text-2xl font-bold mb-4 text-cyan-300">解決すべき複合課題</h3>
+                        <ul class="list-disc list-inside space-y-2 text-lg">
+                            <li>高電圧化に伴う絶縁距離の確保</li>
+                            <li>急速充電時の発熱・熱ごもりによる冷却効率低下</li>
+                            <li>高耐熱性、高熱伝導性、高絶縁性、高難燃性、高機械強度の両立</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5: Section 2 -->
+            <section class="theme-dark-minimal text-white">
+                <h2 class="text-8xl font-bold">2. Chemical Insight</h2>
+            </section>
+
+            <!-- Slide 6: Chemical Insight Content -->
+            <section class="theme-dark-minimal text-white">
+                <h2 class="text-4xl font-semibold mb-10 text-left">2. Chemical Insight: 材料的課題の抽出</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold mb-3 text-yellow-400">電気特性</h3>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>絶縁性能の限界:</strong> 800Vシステム対応 (破壊強さ 25 kV/mm以上)</li>
+                            <li><strong>耐トラッキング性:</strong> CTI 600V以上 (PLC等級 0)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold mb-3 text-red-400">熱・機械特性</h3>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>耐熱性の不足:</strong> 安全マージン確保 (荷重たわみ温度 260℃以上)</li>
+                            <li><strong>熱伝導性の欠如:</strong> 効率的な放熱 (1.5 W/m･K以上)</li>
+                            <li><strong>強度と難燃性の両立:</strong> UL94 V-0 (0.75mm) & 高強度 (引張 140 MPa以上)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                        <h3 class="text-2xl font-bold mb-3 text-green-400">成形性・環境対応</h3>
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>成形性:</strong> 複雑形状への対応 (高流動性)</li>
+                            <li><strong>環境対応:</strong> ハロゲンフリー、バイオマス/リサイクル材の活用</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="mt-10 text-center text-xl text-gray-400">単一特性の強化ではなく、複数特性を高いレベルでバランスさせることが鍵。</p>
+            </section>
+
+            <!-- Slide 7: Section 3 -->
+            <section class="theme-warm-gradient text-white">
+                <h2 class="text-8xl font-bold">3. Cross-Link</h2>
+            </section>
+
+            <!-- Slide 8: Cross-Link Content -->
+            <section class="theme-warm-gradient text-white">
+                <h2 class="text-4xl font-semibold mb-8 text-left">3. Cross-Link: 応用可能な社内知見</h2>
+                <p class="text-left mb-8 text-xl">直接的な関連データは低いものの、クラレグループの広範な技術基盤が応用可能。</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    <div class="bg-white/20 p-6 rounded-lg">
+                        <i class="fas fa-cogs text-5xl mb-4"></i>
+                        <h3 class="text-xl font-bold">高機能エンプラ</h3>
+                        <p class="text-sm mt-2">PPS, 高耐熱PAの合成・コンパウンド技術</p>
+                    </div>
+                    <div class="bg-white/20 p-6 rounded-lg">
+                        <i class="fas fa-fire-extinguisher text-5xl mb-4"></i>
+                        <h3 class="text-xl font-bold">難燃剤技術</h3>
+                        <p class="text-sm mt-2">ハロゲンフリー難燃剤の知見</p>
+                    </div>
+                    <div class="bg-white/20 p-6 rounded-lg">
+                        <i class="fas fa-atom text-5xl mb-4"></i>
+                        <h3 class="text-xl font-bold">フィラー分散技術</h3>
+                        <p class="text-sm mt-2">熱伝導性フィラーの均一分散ノウハウ</p>
+                    </div>
+                    <div class="bg-white/20 p-6 rounded-lg">
+                        <i class="fas fa-leaf text-5xl mb-4"></i>
+                        <h3 class="text-xl font-bold">環境対応技術</h3>
+                        <p class="text-sm mt-2">バイオマス・リサイクル材の活用知見</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Section 4 -->
+            <section class="theme-dark-minimal text-white">
+                <h2 class="text-8xl font-bold">4. Market Trend</h2>
+            </section>
+
+            <!-- Slide 10: Market Trend Content -->
+            <section class="theme-dark-minimal text-white">
+                <h2 class="text-4xl font-semibold mb-8 text-left">4. Market Trend: EVバッテリー材料市場の動向</h2>
+                <div class="text-left space-y-5 text-xl">
+                    <p><i class="fas fa-bolt fa-fw mr-3 text-yellow-400"></i><strong>高電圧化への対応:</strong> 800Vシステムの普及に伴い、PPS, PEEK, 高耐熱PA等の需要が増加。</p>
+                    <p><i class="fas fa-temperature-high fa-fw mr-3 text-red-400"></i><strong>熱マネジメントの重要性:</strong> 熱伝導性ポリマーの開発競争が激化。冷却効率向上が最重要課題に。</p>
+                    <p><i class="fas fa-shield-alt fa-fw mr-3 text-blue-400"></i><strong>安全性・信頼性の向上:</strong> 高難燃性 (UL94 V-0) とハロゲンフリーが標準化。</p>
+                    <p><i class="fas fa-weight-hanging fa-fw mr-3 text-gray-400"></i><strong>軽量化とコストダウン:</strong> 金属部品の樹脂化トレンドは継続。リサイクル・バイオマス材活用も鍵。</p>
+                </div>
+            </section>
+
+            <!-- Slide 11: Section 5 -->
+            <section class="theme-corporate-blue text-white">
+                <h2 class="text-8xl font-bold">5. Proposal</h2>
+            </section>
+
+            <!-- Slide 12: Proposal Intro -->
+            <section data-background-image="https://source.unsplash.com/featured/?strategy,planning,whiteboard" data-background-color="#0a2e5c" class="full-bg-image text-white">
+                <div class="overlay"></div>
+                <div class="content-wrapper h-full flex flex-col justify-center items-start text-left p-12">
+                    <h2 class="text-5xl font-bold max-w-3xl">クラレからのご提案</h2>
+                    <p class="mt-6 text-2xl max-w-3xl opacity-90">旭日自動車様のニーズに対し、クラレ独自のPPSおよび高耐熱PAコンパウンドによる「新用途」と「改良アイデア」を提案します。</p>
+                </div>
+            </section>
+
+            <!-- Slide 13: Proposal 1 -->
+            <section class="theme-corporate-blue text-white">
+                <h2 class="text-3xl font-semibold mb-2 text-left">提案1: 高熱伝導性・高絶縁性PPSコンパウンド</h2>
+                <h3 class="text-5xl font-bold mb-6 text-left text-cyan-300">「EV-Therm™ PPS」シリーズ</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="text-left space-y-4">
+                        <p>要求仕様を高度に満たす、クラレ独自のPPSコンパウンドを開発・提案します。</p>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg">EV-Therm™ PPS-HT</h4>
+                            <p class="text-sm">高熱伝導グレード (1.5 W/m･K 以上)</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg">EV-Therm™ PPS-LV</h4>
+                            <p class="text-sm">高流動・低アウトガスグレード</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg text-green-300">EV-Therm™ PPS-Eco (オプション)</h4>
+                            <p class="text-sm">環境対応グレード (バイオマス/リサイクル材 20%以上)</p>
+                        </div>
+                        <p class="mt-4"><i class="fas fa-calendar-alt mr-2"></i><strong>提供物:</strong> 来月末 (12/25) までに物性表、サンプル、試験片を提出</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="kpi-card"><p class="kpi-label">熱伝導率</p><p class="kpi-value">1.5<span class="kpi-unit">W/m･K 以上</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">荷重たわみ温度</p><p class="kpi-value">260<span class="kpi-unit">℃ 以上</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">絶縁破壊強さ</p><p class="kpi-value">25<span class="kpi-unit">kV/mm 以上</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">耐トラッキング性</p><p class="kpi-value">600<span class="kpi-unit">V (PLC 0)</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">難燃性 (0.75mm)</p><p class="kpi-value">UL94<span class="kpi-unit">V-0</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">引張強度</p><p class="kpi-value">140<span class="kpi-unit">MPa 以上</span></p></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 14: Proposal 2 -->
+            <section class="theme-corporate-blue text-white">
+                <h2 class="text-3xl font-semibold mb-2 text-left">提案2: 高耐熱性・高靭性PA系コンパウンド (コスト最適化案)</h2>
+                <h3 class="text-5xl font-bold mb-6 text-left text-cyan-300">「EV-Tough™ PA」シリーズ</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="text-left space-y-4">
+                        <p>PPSよりもコスト競争力に優れる高耐熱PAをベースに、性能とコストのベストバランスを追求します。</p>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg">EV-Tough™ PA-HT</h4>
+                            <p class="text-sm">高耐熱・熱伝導グレード (1.0 W/m･K 以上)</p>
+                        </div>
+                        <div class="bg-white/10 p-4 rounded-lg">
+                            <h4 class="font-bold text-lg text-green-300">EV-Tough™ PA-Eco</h4>
+                            <p class="text-sm">コスト・環境対応両立グレード</p>
+                        </div>
+                        <h4 class="text-2xl font-bold pt-4">今後の進め方</h4>
+                        <p>まず「EV-Therm™ PPS-HT」の評価をいただき、その結果を基に本PAシリーズの検討を具体化します。</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="kpi-card"><p class="kpi-label">熱伝導率</p><p class="kpi-value">1.0<span class="kpi-unit">W/m･K 以上</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">荷重たわみ温度</p><p class="kpi-value">240<span class="kpi-unit">℃ 以上</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">絶縁破壊強さ</p><p class="kpi-value">20<span class="kpi-unit">kV/mm 以上</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">耐トラッキング性</p><p class="kpi-value">500<span class="kpi-unit">V (PLC 1)</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">難燃性 (0.75mm)</p><p class="kpi-value">UL94<span class="kpi-unit">V-0</span></p></div>
+                        <div class="kpi-card"><p class="kpi-label">引張強度</p><p class="kpi-value">120<span class="kpi-unit">MPa 以上</span></p></div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/reveal.js@4.3.1/dist/reveal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            width: 1280,
+            height: 720,
+            margin: 0.04,
+            transition: 'slide', // none/fade/slide/convex/concave/zoom
+            // Learn about plugins: https://revealjs.com/plugins/
+            // plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>
