@@ -27,9 +27,22 @@ def main():
     st.markdown(
         """
         <style>
-        /* タブの中身をビューポート内でスクロール可能にする */
-        [data-testid="stTabs"] [role="tabpanel"] > div {
-            max-height: calc(100vh - 230px);
+        /* メイン領域全体のスクロールを無効化 */
+        section[data-testid="stMain"] {
+            overflow: hidden;
+        }
+
+        /* メイン領域のタブの中身 */
+        section[data-testid="stMain"] [data-testid="stTabs"] [role="tabpanel"] > div {
+            height: 63vh;
+            overflow-y: auto;
+            padding-right: 12px;
+            padding-bottom: 20px;
+        }
+        
+        /* サイドバーのタブの中身 */
+        section[data-testid="stSidebar"] [data-testid="stTabs"] [role="tabpanel"] > div {
+            max-height: 85vh;
             overflow-y: auto;
             padding-right: 12px;
         }
