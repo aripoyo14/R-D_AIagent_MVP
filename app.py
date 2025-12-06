@@ -53,6 +53,7 @@ def main():
         review_container = st.container()
     with tab2:
         conversation_container = st.container()
+        progress_container = st.empty()
     
     # サイドバー（AIレビューのスピナーをレビュータブに表示するためコンテナを渡す）
     with st.sidebar:
@@ -66,7 +67,7 @@ def main():
     
     # タブ1: AIレビュー結果（会話ログ出力先を渡す）
     with review_container:
-        render_review_results(selected_department, conversation_container)
+        render_review_results(selected_department, conversation_container, progress_container)
     
     # タブ2: イノベーション分隊の会話ログ
     with conversation_container:
