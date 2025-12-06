@@ -301,8 +301,8 @@ def run_innovation_squad(
     if "conversation_log" not in st.session_state:
         st.session_state.conversation_log = []
     
-    # CSSを注入
-    st.markdown(get_chat_css(), unsafe_allow_html=True)
+    # CSSは呼び出し元で注入済みのため削除
+    # st.markdown(get_chat_css(), unsafe_allow_html=True)
 
     if progress_callback:
         progress_callback(15, "オーケストレーター: チームへのブリーフィングを作成中...")
@@ -373,7 +373,14 @@ def run_innovation_squad(
     proposal_final = agent_solution_architect(market_data, internal_data, interview_memo, feedback=critique, model_name=model_name)
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
 
-    # 会話ログはagent_solution_architect内の_stream_responseで追加済み
+    orchestrator_msg4 = "よし、これで行こう！ みんなありがとう。"
+    st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg4), unsafe_allow_html=True)
+    # 会話ログに追加
+    st.session_state.conversation_log.append({
+        "role": "assistant",
+        "avatar": ORCHESTRATOR_AVATAR,
+        "content": orchestrator_msg4
+    })
 
     if progress_callback:
         progress_callback(95, "オーケストレーター: 最終レポートを作成中...")

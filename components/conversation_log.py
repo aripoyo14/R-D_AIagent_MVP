@@ -221,9 +221,6 @@ def render_message_html(role, avatar, content):
     # MarkdownをHTMLに変換（表と改行をサポート）
     content = markdown.markdown(content, extensions=['tables', 'nl2br'])
     
-    # ロール名の日本語化
-    role_display = "ユーザー" if role == "user" else "AI"
-
     # 画像かどうか判定
     is_image = avatar and os.path.exists(avatar)
     
@@ -236,6 +233,22 @@ def render_message_html(role, avatar, content):
     # オーケストレーター判定（絵文字 または ファイル名にOrchestratorが含まれる）
     is_orchestrator = avatar == "👑" or (is_image and "Orchestrator.png" in avatar)
 
+    # ロール名の決定
+    role_display = "AI"
+    if role == "user":
+        role_display = "ユーザー"
+    elif is_orchestrator:
+        role_display = "オーケストレーター (PM)"
+    elif is_image:
+        if "Market_Researcher.png" in avatar:
+            role_display = "マーケットリサーチャー (外の目)"
+        elif "Internal_Specialist.png" in avatar:
+            role_display = "インターナルスペシャリスト (社内の情報通)"
+        elif "Solution_Architect.png" in avatar:
+            role_display = "ソリューションアーキテクト (発明家)"
+        elif "Devils_Advocate.png" in avatar:
+            role_display = "デビルズアドボケイト (鬼の査読官)"
+    
     if role == "user":
         # ユーザーメッセージ（右側）
         return f"""
@@ -248,7 +261,7 @@ def render_message_html(role, avatar, content):
         return f"""
 <div class="message-row orchestrator">
     <div class="message-content">
-        <div class="role-name" style="text-align: right; margin-right: 4px;">{role_display} (司会)</div>
+        <div class="role-name" style="text-align: right; margin-right: 14px;">{role_display}</div>
         <div class="message-bubble">{content}</div>
     </div>
     <div class="avatar">{avatar_html}</div>

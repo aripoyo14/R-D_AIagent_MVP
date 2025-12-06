@@ -94,35 +94,9 @@ def render_idea_report():
     if not (st.session_state.show_idea_report and st.session_state.idea_report):
         return
     
-    st.divider()
-    st.header("💡 アイデア創出レポート")
-    st.markdown("---")
-    
     # HTMLレポート出力ボタン
     col1, col2, col3 = st.columns([1, 1, 1])
     with col2:
-        if st.button("📄 HTMLで保存", type="primary", use_container_width=True):
-            try:
-                with st.spinner("HTMLレポートを生成中..."):
-                    company_name = st.session_state.form_data.get("company_name", "")
-                    slides_data = parse_markdown_to_slides(
-                        st.session_state.idea_report,
-                        company_name=company_name
-                    )
-                    html_path = create_html_report(
-                        slides_data,
-                        title="アイデア創出レポート",
-                        company_name=company_name,
-                    )
-                    st.success("✅ HTMLレポートを作成しました")
-                    st.markdown(f"[ローカルで開く]({html_path})")
-                    st.session_state.html_report_path = html_path
-            except ValueError as e:
-                st.error(f"❌ 設定エラー: {str(e)}")
-            except Exception as e:
-                st.error(f"❌ エラーが発生しました: {str(e)}")
-
-    with col3:
         if st.button("📊 スライドを作成", type="primary", use_container_width=True):
             try:
                 with st.spinner("スライドを生成中..."):
@@ -143,6 +117,8 @@ def render_idea_report():
                 st.error(f"❌ 設定エラー: {str(e)}")
             except Exception as e:
                 st.error(f"❌ エラーが発生しました: {str(e)}")
+
+    
     
     # 以前に作成されたレポートへのリンク
     if hasattr(st.session_state, 'html_report_path') and st.session_state.html_report_path:

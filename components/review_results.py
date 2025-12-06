@@ -15,6 +15,8 @@ except Exception:  # ランタイム環境によっては import できない場
     google_exceptions = None
 
 
+from components.conversation_log import get_chat_css
+
 def handle_registration(
     selected_department: str,
     review: ReviewResult,
@@ -56,31 +58,71 @@ def handle_registration(
         target_container = conversation_container or st
         with target_container:
             try:
-                with st.spinner("💡 イノベーション分隊が議論中..."):
-                    # プログレスバーの更新関数
-                    def update_progress(percent, text):
-                        if progress_container:
-                            with progress_container.container():
-                                # プログレスバーの色をプライマリカラー（ボタンの色）に合わせるCSS
-                                st.markdown(
-                                    """
-                                    <style>
-                                    div[data-testid="stProgress"] > div > div > div > div {
-                                        background-color: #ff4b4b;
-                                    }
-                                    </style>
-                                    """,
-                                    unsafe_allow_html=True
-                                )
-                                st.markdown(f"**{percent}%** {text}")
-                                st.progress(percent)
-                                if percent == 100:
-                                    st.empty()
+                # LINE風チャットUIのCSSを注入（コンテナ作成前に適用）
+                st.markdown(get_chat_css(), unsafe_allow_html=True)
 
-                    # 初期化
-                    update_progress(0, "チーム結成中...")
+                # カスタムレイアウトで進捗を表示
+                status_text_area = st.empty()
+                progress_bar = st.progress(0)
+                
+                # 詳細ログ用のExpander（最初は閉じておく）
+                with st.expander("詳細ログを表示", expanded=False):
+                    log_area = st.empty()
+                    logs = []
+
+                # 会話ログ用のスクロール可能なコンテナを作成
+                # Streamlit 1.30.0以上で height パラメータが使用可能
+                try:
+                    chat_log_container = st.container(height=330, border=False)
+                    # このコンテナがある時だけ、親のタブパネルのスクロールを無効化するCSS
+                    st.markdown("""
+                        <style>
+                        section[data-testid="stMain"] [data-testid="stTabs"] [role="tabpanel"] > div {
+                            overflow-y: hidden !important;
+                        }
+                        </style>
+                    """, unsafe_allow_html=True)
+                except TypeError:
+                    # 古いバージョンの場合は通常のコンテナ（スクロール機能なし）
+                    chat_log_container = st.container()
+
+                # プログレスバーの更新関数
+                def update_progress(percent, text):
+                    # メインのステータステキスト更新
+                    status_text_area.markdown(f"##### 💡 [{percent}%] {text}")
+                    # プログレスバー更新
+                    progress_bar.progress(percent)
                     
-                    interview_content = st.session_state.form_data.get("interview_memo", "")
+                    # ログに追加
+                    timestamp = datetime.now().strftime("%H:%M:%S")
+                    logs.append(f"[{timestamp}] {text}")
+                    log_area.text("\n".join(logs))
+                    
+                    if progress_container:
+                        with progress_container.container():
+                            # プログレスバーの色をプライマリカラー（ボタンの色）に合わせるCSS
+                            st.markdown(
+                                """
+                                <style>
+                                div[data-testid="stProgress"] > div > div > div > div {
+                                    background-color: #ff4b4b;
+                                }
+                                </style>
+                                """,
+                                unsafe_allow_html=True
+                            )
+                            # st.markdown(f"**{percent}%** {text}")
+                            # st.progress(percent)
+                            if percent == 100:
+                                st.empty()
+
+                # 初期化
+                update_progress(0, "チーム結成中...")
+                
+                interview_content = st.session_state.form_data.get("interview_memo", "")
+                
+                # 会話ログコンテナの中で実行
+                with chat_log_container:
                     idea_report, cross_pollination_results, academic_results = run_innovation_squad(
                         interview_memo=interview_content,
                         tech_tags=review.tech_tags,
@@ -89,6 +131,10 @@ def handle_registration(
                         progress_callback=update_progress,
                         model_name=model_name,
                     )
+                
+                # 完了時の表示
+                status_text_area.success("✅ イノベーション分隊の議論が完了しました！")
+                progress_bar.progress(100)
             except Exception as e:
                 if "google_exceptions" in globals() and google_exceptions and isinstance(e, google_exceptions.ServiceUnavailable):
                     st.error("⚠️ モデルが混雑しています。少し待ってから再実行してください。")
