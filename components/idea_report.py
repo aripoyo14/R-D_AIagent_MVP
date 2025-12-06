@@ -6,7 +6,7 @@ import streamlit as st
 from typing import List, Dict
 from services.markdown_parser import parse_markdown_to_slides
 from services.html_report import create_html_report
-from services.slide_report import create_slide_report
+from services.slide_report2 import create_slide_report_v2
 
 
 def display_cross_pollination_cards(results: List[Dict]):
@@ -131,7 +131,7 @@ def render_idea_report():
                         st.session_state.idea_report,
                         company_name=company_name
                     )
-                    slide_path = create_slide_report(
+                    slide_path = create_slide_report_v2(
                         slides_data,
                         title="アイデア創出レポート",
                         company_name=company_name,
