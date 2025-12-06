@@ -31,7 +31,7 @@ SOLUTION_ARCHITECT_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/So
 DEVILS_ADVOCATE_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Devils_Advocate.png"
 
 
-def get_llm(temperature: float = 0.3, streaming: bool = False):
+def get_llm(temperature: float = 0.3, streaming: bool = False, model_name: str = "gemini-2.5-flash-lite"):
     """LLMを返すファクトリ。Gemini 2.5 Flash を使用。"""
 
     if ChatGoogleGenerativeAI is None:
@@ -43,24 +43,22 @@ def get_llm(temperature: float = 0.3, streaming: bool = False):
 
     return ChatGoogleGenerativeAI(
         # model="gemini-2.5-flash",
-        model="gemini-2.5-flash-lite",
+        model=model_name,
         temperature=temperature,
         google_api_key=api_key,
         streaming=streaming,
     )
 
 
-def generate_orchestrator_brief(interview_memo: str) -> str:
+def generate_orchestrator_brief(interview_memo: str, model_name: str = "gemini-2.5-flash-lite") -> str:
     """👑司会用の短いブリーフを生成する。"""
 
-    llm = get_llm(temperature=0.5)
+    llm = get_llm(temperature=0.5, model_name=model_name)
     prompt = (
         "あなたはオーケストレーターです。以下の面談メモを読み、1段落で司会用ブリーフを作成してください。"
         "回答は必ず日本語で記載してください。"
         "含める要素: 主課題/要求スペック、競合・材料の候補、主要リスク、納期があれば明示、各エージェントへの指示"
         " (Market=事実調査, Internal=社内知見, Architect=発想, Devil=リスク確認)。"
-        "最初の行にメタ情報を書いてください: [meta role=assistant tokens=<推定トークン数>]. "
-        "本文はその次の行から書き、200文字を超えそうなら句点（。！？）の直後に `--- SPLIT ---` を挿入して続きを書いてください。"
         f"\n\n面談メモ:\n{interview_memo}"
     )
     response = llm.invoke([HumanMessage(content=prompt)])
@@ -68,7 +66,7 @@ def generate_orchestrator_brief(interview_memo: str) -> str:
 
 
 
-def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[str, List[Dict]]:
+def agent_market_researcher(tech_tags: List[str], use_case: str = "", model_name: str = "gemini-2.5-flash-lite") -> tuple[str, List[Dict]]:
     """🕵️市場調査エージェント。DuckDuckGo で市場トレンドを検索。
     
     Returns:
@@ -76,7 +74,7 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
     """
 
     # 重要度の高いタグを選定（最大5つ）
-    selected_tags = select_important_tags(tech_tags, interview_memo=use_case, max_tags=5)
+    selected_tags = select_important_tags(tech_tags, interview_memo=use_case, max_tags=5, model_name=model_name)
     
     # 選定されたタグで検索を実行
     results = backend.search_market_trends(selected_tags, use_case) or ""
@@ -101,9 +99,7 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
         "You are a Market Researcher. Summarize the following search results into facts only "
         "(Competitors, Market Size, Trends, Patents, Academic papers). No speculation. "
         "Respond in Japanese only.\n"
-        "最初の行にメタ情報を書いてください: [meta role=assistant tokens=<推定トークン数>]. 本文は2行目以降に書いてください。\n"
         "各セクションは必ず見出し行から始めてください: '## 競合他社', '## 市場規模', '## トレンド', '## 特許', '## 学術論文'.\n"
-        "1セクションが2000文字を超えそうなら、句点（。！？）の直後に `--- SPLIT ---` を挿入して続きを書いてください。\n"
         "1セクションは箇条書きで簡潔にまとめてください。\n\n"
         "Market: {results}\n\n"
         "Patents: {patents}\n\n"
@@ -111,7 +107,7 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
         # 日本語訳:
         # 「あなたは市場調査エージェントです。以下の検索結果を要約して、競合、市場サイズ、トレンド、特許、論文を事実のみで書いてください。推測はしないでください。」
     ).format(results=results, patents=patents, academics=academics)
-    llm = get_llm(temperature=0.3)
+    llm = get_llm(temperature=0.3, model_name=model_name)
     response = llm.invoke([HumanMessage(content=prompt)])
     summary = response.content.strip()
     st.markdown(render_message_html("assistant", avatar, summary), unsafe_allow_html=True)
@@ -189,10 +185,11 @@ def agent_solution_architect(
     internal_data: str,
     interview_memo: str,
     feedback: Optional[str] = None,
+    model_name: str = "gemini-2.5-flash-lite",
 ) -> str:
     """💡ソリューションアーキテクトエージェント。市場データと社内データを統合して提案を作成。"""
 
-    llm = get_llm(temperature=0.9, streaming=True)
+    llm = get_llm(temperature=0.9, streaming=True, model_name=model_name)
 
     intro = ""
     if feedback:
@@ -224,10 +221,10 @@ def agent_solution_architect(
 
 
 
-def agent_devils_advocate(proposal: str) -> str:
+def agent_devils_advocate(proposal: str, model_name: str = "gemini-2.5-flash-lite") -> str:
     """👿悪魔の擁護者エージェント。提案を厳しく批判。"""
 
-    llm = get_llm(temperature=0.5, streaming=True)
+    llm = get_llm(temperature=0.5, streaming=True, model_name=model_name)
     prompt = (
         "You are a Devil's Advocate (Strict Technical Reviewer) inside the proposing company. "
         "Write as an internal reviewer (use 「当社」「当方」「我々」) and never from the client's perspective "
@@ -258,10 +255,11 @@ def agent_orchestrator_summary(
     interview_memo: str,
     tech_tags: List[str],
     company_name: str,
+    model_name: str = "gemini-2.5-flash-lite",
 ) -> str:
     """👑要約エージェント。指定テンプレートに沿って最終レポートを作成。"""
 
-    llm = get_llm(temperature=0.5)
+    llm = get_llm(temperature=0.5, model_name=model_name)
 
     # /services/report_generator.pyのREPORT_SYSTEM_PROMPTを使用
     system_prompt = REPORT_SYSTEM_PROMPT
@@ -292,6 +290,7 @@ def run_innovation_squad(
     department: str,
     company_name: str = "",
     progress_callback: Optional[callable] = None,
+    model_name: str = "gemini-2.5-flash-lite",
 ) -> tuple[str, List[dict], List[dict]]:
     """イノベーション分隊のフローを実行し、最終レポートのMarkdown、他事業部知見リスト、学術論文情報を返す。
     
@@ -308,7 +307,7 @@ def run_innovation_squad(
     if progress_callback:
         progress_callback(15, "オーケストレーター: チームへのブリーフィングを作成中...")
 
-    brief = generate_orchestrator_brief(interview_memo)
+    brief = generate_orchestrator_brief(interview_memo, model_name=model_name)
     brief_content = brief or "チーム、開始しましょう。"
     st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, brief_content), unsafe_allow_html=True)
     st.session_state.conversation_log.append({
@@ -320,7 +319,7 @@ def run_innovation_squad(
     if progress_callback:
         progress_callback(30, "マーケットリサーチャー & 社内スペシャリスト: 情報収集中...")
 
-    market_data, academic_results = agent_market_researcher(tech_tags, use_case=interview_memo)
+    market_data, academic_results = agent_market_researcher(tech_tags, use_case=interview_memo, model_name=model_name)
     internal_data, internal_hits = agent_internal_specialist(interview_memo, department)
 
     if progress_callback:
@@ -338,7 +337,7 @@ def run_innovation_squad(
     if progress_callback:
         progress_callback(55, "ソリューションアーキテクト: 初期提案を作成中...")
 
-    proposal_v1 = agent_solution_architect(market_data, internal_data, interview_memo)
+    proposal_v1 = agent_solution_architect(market_data, internal_data, interview_memo, model_name=model_name)
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
 
     if progress_callback:
@@ -353,7 +352,7 @@ def run_innovation_squad(
         "content": orchestrator_msg2
     })
     
-    critique = agent_devils_advocate(proposal_v1)
+    critique = agent_devils_advocate(proposal_v1, model_name=model_name)
     # 会話ログはagent_devils_advocate内の_stream_responseで追加済み
 
     if progress_callback:
@@ -371,7 +370,7 @@ def run_innovation_squad(
     if progress_callback:
         progress_callback(90, "ソリューションアーキテクト: 最終提案を練り上げています...")
 
-    proposal_final = agent_solution_architect(market_data, internal_data, interview_memo, feedback=critique)
+    proposal_final = agent_solution_architect(market_data, internal_data, interview_memo, feedback=critique, model_name=model_name)
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
 
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
@@ -386,6 +385,7 @@ def run_innovation_squad(
         interview_memo=interview_memo,
         tech_tags=tech_tags,
         company_name=company_name,
+        model_name=model_name,
     )
     # 会話ログはagent_orchestrator_summary内で追加済み
     

@@ -118,7 +118,7 @@ def create_slide_report_v2(
     output_path = Path(output_dir) / basename
 
     llm = ChatGoogleGenerativeAI(
-        model=model_name,
+        model="gemini-2.5-pro",
         temperature=temperature,
         google_api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"),
     )
