@@ -61,7 +61,8 @@ def create_slide_report(
 
     # LLMの初期化 (Gemini 2.5 Pro)
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-pro",
+        # model="gemini-2.5-pro",
+        model="gemini-2.5-flash-lite",
         temperature=0.9,
         google_api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"),
         convert_system_message_to_human=True # System prompt support varies
