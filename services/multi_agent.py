@@ -21,6 +21,14 @@ from services.academic import search_arxiv, format_arxiv_results
 from services.ai_review import select_important_tags
 
 from services.report_generator import REPORT_SYSTEM_PROMPT, REPORT_HUMAN_PROMPT
+from components.conversation_log import get_chat_css, render_message_html
+
+# 定数定義
+ORCHESTRATOR_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Orchestrator.png"
+MARKET_RESEARCHER_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Market_Researcher.png"
+INTERNAL_SPECIALIST_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Internal_Specialist.png"
+SOLUTION_ARCHITECT_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Solution_Architect.png"
+DEVILS_ADVOCATE_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Devils_Advocate.png"
 
 
 def get_llm(temperature: float = 0.3, streaming: bool = False):
@@ -34,7 +42,8 @@ def get_llm(temperature: float = 0.3, streaming: bool = False):
         raise ValueError("GEMINI_API_KEY が設定されていません")
 
     return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash",
+        # model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         temperature=temperature,
         google_api_key=api_key,
         streaming=streaming,
@@ -49,8 +58,10 @@ def generate_orchestrator_brief(interview_memo: str) -> str:
         "あなたはオーケストレーターです。以下の面談メモを読み、1段落で司会用ブリーフを作成してください。"
         "回答は必ず日本語で記載してください。"
         "含める要素: 主課題/要求スペック、競合・材料の候補、主要リスク、納期があれば明示、各エージェントへの指示"
-        " (Market=事実調査, Internal=社内知見, Architect=発想, Devil=リスク確認)。\n\n"
-        f"面談メモ:\n{interview_memo}"
+        " (Market=事実調査, Internal=社内知見, Architect=発想, Devil=リスク確認)。"
+        "最初の行にメタ情報を書いてください: [meta role=assistant tokens=<推定トークン数>]. "
+        "本文はその次の行から書き、200文字を超えそうなら句点（。！？）の直後に `--- SPLIT ---` を挿入して続きを書いてください。"
+        f"\n\n面談メモ:\n{interview_memo}"
     )
     response = llm.invoke([HumanMessage(content=prompt)])
     return response.content.strip()
@@ -72,34 +83,11 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
     patents = search_patents(selected_tags) or ""
     academics_list = search_arxiv(" ".join(selected_tags))
     academics = format_arxiv_results(academics_list) if academics_list else ""
-    avatar = "🕵️"
-    with st.chat_message("assistant", avatar=avatar):
-        if not any([results.strip(), patents, academics]):
-            summary = "No market/patent/academic data found."
-            st.markdown(summary)
-            # 会話ログに追加
-            if "conversation_log" in st.session_state:
-                st.session_state.conversation_log.append({
-                    "role": "assistant",
-                    "avatar": avatar,
-                    "content": summary
-                })
-            return summary, []
-
-        prompt = (
-            "You are a Market Researcher. Summarize the following search results into facts only "
-            "(Competitors, Market Size, Trends, Patents, Academic papers). No speculation. "
-            "Respond in Japanese only.\n\n"
-            "Market: {results}\n\n"
-            "Patents: {patents}\n\n"
-            "Academic: {academics}"
-            # 日本語訳:
-            # 「あなたは市場調査エージェントです。以下の検索結果を要約して、競合、市場サイズ、トレンド、特許、論文を事実のみで書いてください。推測はしないでください。」
-        ).format(results=results, patents=patents, academics=academics)
-        llm = get_llm(temperature=0.3)
-        response = llm.invoke([HumanMessage(content=prompt)])
-        summary = response.content.strip()
-        st.markdown(summary)
+    academics = format_arxiv_results(academics_list) if academics_list else ""
+    avatar = MARKET_RESEARCHER_AVATAR
+    if not any([results.strip(), patents, academics]):
+        summary = "市場・特許・学術データが見つかりませんでした。"
+        st.markdown(render_message_html("assistant", avatar, summary), unsafe_allow_html=True)
         # 会話ログに追加
         if "conversation_log" in st.session_state:
             st.session_state.conversation_log.append({
@@ -107,7 +95,34 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "") -> tuple[s
                 "avatar": avatar,
                 "content": summary
             })
-        return summary, academics_list
+        return summary, []
+
+    prompt = (
+        "You are a Market Researcher. Summarize the following search results into facts only "
+        "(Competitors, Market Size, Trends, Patents, Academic papers). No speculation. "
+        "Respond in Japanese only.\n"
+        "最初の行にメタ情報を書いてください: [meta role=assistant tokens=<推定トークン数>]. 本文は2行目以降に書いてください。\n"
+        "各セクションは必ず見出し行から始めてください: '## 競合他社', '## 市場規模', '## トレンド', '## 特許', '## 学術論文'.\n"
+        "1セクションが2000文字を超えそうなら、句点（。！？）の直後に `--- SPLIT ---` を挿入して続きを書いてください。\n"
+        "1セクションは箇条書きで簡潔にまとめてください。\n\n"
+        "Market: {results}\n\n"
+        "Patents: {patents}\n\n"
+        "Academic: {academics}"
+        # 日本語訳:
+        # 「あなたは市場調査エージェントです。以下の検索結果を要約して、競合、市場サイズ、トレンド、特許、論文を事実のみで書いてください。推測はしないでください。」
+    ).format(results=results, patents=patents, academics=academics)
+    llm = get_llm(temperature=0.3)
+    response = llm.invoke([HumanMessage(content=prompt)])
+    summary = response.content.strip()
+    st.markdown(render_message_html("assistant", avatar, summary), unsafe_allow_html=True)
+    # 会話ログに追加
+    if "conversation_log" in st.session_state:
+        st.session_state.conversation_log.append({
+            "role": "assistant",
+            "avatar": avatar,
+            "content": summary
+        })
+    return summary, academics_list
 
 
 
@@ -115,38 +130,38 @@ def agent_internal_specialist(query_text: str, department: str) -> tuple[str, Li
     """🔍社内データ検索エージェント。他事業部の知見を検索。"""
 
     hits = backend.search_cross_pollination(query_text, department, top_k=3) or []
-    avatar = "🔍"
-    with st.chat_message("assistant", avatar=avatar):
-        if not hits:
-            msg = "No relevant internal data found."
-            st.markdown(msg)
-            # 会話ログに追加
-            if "conversation_log" in st.session_state:
-                st.session_state.conversation_log.append({
-                    "role": "assistant",
-                    "avatar": avatar,
-                    "content": msg
-                })
-            return msg, []
-
-        bullet_lines = []
-        for item in hits:
-            metadata = item.get("metadata", {}) if isinstance(item, dict) else {}
-            company = metadata.get("company") or metadata.get("client") or "Unknown Company"
-            dept = metadata.get("department") or "Unknown Dept"
-            content = item.get("content", "") if isinstance(item, dict) else ""
-            bullet_lines.append(f"- {company} ({dept}): {content[:200]}".strip())
-
-        result_text = "\n".join(bullet_lines)
-        st.markdown(result_text)
+    hits = backend.search_cross_pollination(query_text, department, top_k=3) or []
+    avatar = INTERNAL_SPECIALIST_AVATAR
+    if not hits:
+        msg = "関連する社内データが見つかりませんでした。"
+        st.markdown(render_message_html("assistant", avatar, msg), unsafe_allow_html=True)
         # 会話ログに追加
         if "conversation_log" in st.session_state:
             st.session_state.conversation_log.append({
                 "role": "assistant",
                 "avatar": avatar,
-                "content": result_text
+                "content": msg
             })
-        return result_text, hits
+        return msg, []
+
+    bullet_lines = []
+    for item in hits:
+        metadata = item.get("metadata", {}) if isinstance(item, dict) else {}
+        company = metadata.get("company") or metadata.get("client") or "Unknown Company"
+        dept = metadata.get("department") or "Unknown Dept"
+        content = item.get("content", "") if isinstance(item, dict) else ""
+        bullet_lines.append(f"- {company} ({dept}): {content[:200]}".strip())
+
+    result_text = "\n".join(bullet_lines)
+    st.markdown(render_message_html("assistant", avatar, result_text), unsafe_allow_html=True)
+    # 会話ログに追加
+    if "conversation_log" in st.session_state:
+        st.session_state.conversation_log.append({
+            "role": "assistant",
+            "avatar": avatar,
+            "content": result_text
+        })
+    return result_text, hits
 
 
 
@@ -154,12 +169,11 @@ def _stream_response(llm, messages: List, avatar: str) -> str:
     """LLM出力をStreamlitにストリーム表示するヘルパー。"""
 
     buffer = ""
-    with st.chat_message("assistant", avatar=avatar):
-        placeholder = st.empty()
-        for chunk in llm.stream(messages):
-            if chunk.content:
-                buffer += chunk.content
-                placeholder.markdown(buffer)
+    placeholder = st.empty()
+    for chunk in llm.stream(messages):
+        if chunk.content:
+            buffer += chunk.content
+            placeholder.markdown(render_message_html("assistant", avatar, buffer), unsafe_allow_html=True)
     # 会話ログに追加
     if buffer and "conversation_log" in st.session_state:
         st.session_state.conversation_log.append({
@@ -204,7 +218,9 @@ def agent_solution_architect(
     # Interview Memo に記載された『Customer Dilemma』を解決する提案を作ってください。既存品の提案だけは避け、
     # 新しい『Chemical Reaction（組み合わせ）』を作ること。フィードバックがある場合は、それに応じて提案を修正すること。」
 
-    return _stream_response(llm, [HumanMessage(content=prompt)], avatar="💡")
+    # 新しい『Chemical Reaction（組み合わせ）』を作ること。フィードバックがある場合は、それに応じて提案を修正すること。」
+
+    return _stream_response(llm, [HumanMessage(content=prompt)], avatar=SOLUTION_ARCHITECT_AVATAR)
 
 
 
@@ -228,7 +244,11 @@ def agent_devils_advocate(proposal: str) -> str:
     # コスト実現性
     # 量産問題です。」
 
-    return _stream_response(llm, [HumanMessage(content=prompt)], avatar="👿")
+    # 化学リスク（水解、熱劣化）
+    # コスト実現性
+    # 量産問題です。」
+
+    return _stream_response(llm, [HumanMessage(content=prompt)], avatar=DEVILS_ADVOCATE_AVATAR)
 
 
 def agent_orchestrator_summary(
@@ -281,14 +301,16 @@ def run_innovation_squad(
     if "conversation_log" not in st.session_state:
         st.session_state.conversation_log = []
     
+    # CSSを注入
+    st.markdown(get_chat_css(), unsafe_allow_html=True)
+
     brief = generate_orchestrator_brief(interview_memo)
-    brief_content = brief or "Team, let's start."
-    with st.chat_message("assistant", avatar="👑"):
-        st.markdown(brief_content)
+    brief_content = brief or "チーム、開始しましょう。"
+    st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, brief_content), unsafe_allow_html=True)
     # 会話ログに追加
     st.session_state.conversation_log.append({
         "role": "assistant",
-        "avatar": "👑",
+        "avatar": ORCHESTRATOR_AVATAR,
         "content": brief_content
     })
 
@@ -296,12 +318,11 @@ def run_innovation_squad(
     internal_data, internal_hits = agent_internal_specialist(interview_memo, department)
 
     orchestrator_msg1 = "材料は揃った。Architect、競合を上回るロジックを組んでくれ。"
-    with st.chat_message("assistant", avatar="👑"):
-        st.markdown(orchestrator_msg1)
+    st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg1), unsafe_allow_html=True)
     # 会話ログに追加
     st.session_state.conversation_log.append({
         "role": "assistant",
-        "avatar": "👑",
+        "avatar": ORCHESTRATOR_AVATAR,
         "content": orchestrator_msg1
     })
     
@@ -309,12 +330,11 @@ def run_innovation_squad(
     # 会話ログはagent_solution_architect内の_stream_responseで追加済み
 
     orchestrator_msg2 = "Devil、この案の弱点を洗い出してくれ。"
-    with st.chat_message("assistant", avatar="👑"):
-        st.markdown(orchestrator_msg2)
+    st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg2), unsafe_allow_html=True)
     # 会話ログに追加
     st.session_state.conversation_log.append({
         "role": "assistant",
-        "avatar": "👑",
+        "avatar": ORCHESTRATOR_AVATAR,
         "content": orchestrator_msg2
     })
     
@@ -322,12 +342,11 @@ def run_innovation_squad(
     # 会話ログはagent_devils_advocate内の_stream_responseで追加済み
 
     orchestrator_msg3 = "Architect、指摘を踏まえて改訂案を出して。"
-    with st.chat_message("assistant", avatar="👑"):
-        st.markdown(orchestrator_msg3)
+    st.markdown(render_message_html("assistant", ORCHESTRATOR_AVATAR, orchestrator_msg3), unsafe_allow_html=True)
     # 会話ログに追加
     st.session_state.conversation_log.append({
         "role": "assistant",
-        "avatar": "👑",
+        "avatar": ORCHESTRATOR_AVATAR,
         "content": orchestrator_msg3
     })
     

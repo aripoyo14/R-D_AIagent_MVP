@@ -72,7 +72,8 @@ def review_interview_content(content: str) -> ReviewResult:
 
     # LLMを初期化（Gemini 2.5 Pro）
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-pro",
+        # model="gemini-2.5-pro",
+        model="gemini-2.5-flash-lite",
         temperature=0.3,
         google_api_key=api_key,
     )
