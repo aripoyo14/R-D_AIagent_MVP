@@ -9,6 +9,7 @@ from components import (
     render_review_results,
     render_idea_report,
     render_conversation_log,
+    render_sample_report,
     init_session_state
 )
 
@@ -55,10 +56,11 @@ def main():
     init_session_state()
     
     # タブを作成
-    tab1, tab2, tab3 = st.tabs([
+    tab1, tab2, tab3, tab4 = st.tabs([
         "🤖 AIレビュー結果",
         "💬 イノベーション分隊の会話ログ",
-        "💡 アイデア創出レポート"
+        "💡 アイデア創出レポート",
+        "📑 サンプルレポート"
     ])
 
     # タブ内のコンテナを準備（スピナーや表示位置を固定）
@@ -89,6 +91,10 @@ def main():
     # タブ3: アイデア創出レポート
     with tab3:
         render_idea_report()
+
+    # タブ4: サンプルレポート
+    with tab4:
+        render_sample_report()
 
 
 if __name__ == "__main__":
