@@ -21,6 +21,10 @@ SYSTEM_PROMPT = """
 あなたは世界トップクラスのビジネスプレゼンテーションデザイナーです。
 提供された構成データをもとに、Reveal.jsを使用した説得力のあるHTMLスライドを作成してください。
 
+# 重要: レイアウトと分割
+1. **1スライド1画面**: 各スライドは必ずスクロールなしで1画面に収まるようにしてください。
+2. **文字数維持**: 元のテキスト情報は削除せず、分割してでも全て掲載してください。
+
 # トーン
 - Smart / Trustworthy / Modern を基調にしつつ、5テーマをローテーション: Corporate Blue, Dark Minimal, Warm Gradient, Futuristic Neon, Glassmorphism。
 - 見出しは Google Fonts（例: Space Grotesk / Manrope）、本文は Inter 系にし、フォールバックも指定。
@@ -53,6 +57,7 @@ HUMAN_PROMPT = """以下のスライド構成データを使って、最高の�
 
 必須:
 - Reveal.js を使用すること。
+- **スクロール禁止**: 内容が多い場合は必ず複数スライドに分割すること。
 - 数値配列/％が明示されている場合のみ Chart.js でグラフ化すること（捏造禁止）。
 - 画像を使う場合は Unsplash キーワード検索URLを使用し、同時にグラデ/単色の背景指定も入れること。
 - CDNが使えない場合でも文字が読めるよう、基本色・余白・フォントサイズのベースCSSを <style> に含めること。
@@ -103,11 +108,10 @@ NAVIGATION_CSS = """
       transform: none;
     }
   }
-  /* コンテンツが溢れたらスクロール可能にする */
+  /* スクロール禁止・はみ出し時は隠す（分割を促すため） */
   .reveal .slides > section {
     height: 100%;
-    overflow-y: auto !important;
-    overflow-x: hidden;
+    overflow: hidden !important;
   }
 </style>
 """

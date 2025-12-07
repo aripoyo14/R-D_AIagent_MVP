@@ -209,16 +209,10 @@ def render_review_results(
             st.session_state.is_agent_running = False
 
         st.divider()
-        col1, col2, col3 = st.columns([1, 1, 1])
-        with col2:
-            register_clicked = st.button(
-                "この内容で登録しますか？",
-                type="primary",
-                use_container_width=True,
-                disabled=st.session_state.is_agent_running,
-            )
-
-        if register_clicked:
+        
+        # 自動的に会話を開始する
+        # まだ実行しておらず、かつエージェントが動作中でない場合
+        if not st.session_state.show_idea_report and not st.session_state.is_agent_running:
             st.session_state.is_agent_running = True
             handle_registration(selected_department, review, conversation_container, progress_container, model_name=model_name)
     else:

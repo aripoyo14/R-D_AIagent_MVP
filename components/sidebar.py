@@ -86,19 +86,25 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
     Returns:
         Dict: フォームデータ（company_name, contact_info, interview_memo, submitted）
     """
-    with st.form("interview_form", clear_on_submit=False):
-        company_name = st.text_input(
-            "企業名 (Company Name)",
-            value=st.session_state.form_data.get("company_name", ""),
-            placeholder="例: トヨタ自動車"
-        )
-        
-        contact_info = st.text_input(
-            "相手方 部署・役職",
-            value=st.session_state.form_data.get("contact_info", ""),
-            placeholder="例: ボディ設計部 課長"
-        )
-        
+    # フォーム定義を削除し、各要素を直接配置することでファイルアップロードの即時反映を実現
+    # with st.form("interview_form", clear_on_submit=False):
+    
+    company_name = st.text_input(
+        "企業名 (Company Name)",
+        value=st.session_state.form_data.get("company_name", ""),
+        placeholder="例: トヨタ自動車"
+    )
+    
+    contact_info = st.text_input(
+        "相手方 部署・役職",
+        value=st.session_state.form_data.get("contact_info", ""),
+        placeholder="例: ボディ設計部 課長"
+    )
+    
+    # 面談メモはファイルアップロードからのみ取得
+    interview_memo = st.session_state.form_data.get("interview_memo", "")
+
+    if not interview_memo:
         uploaded_file = st.file_uploader(
             "ファイルから読み込む (docx, txt, pdf)",
             type=["docx", "txt", "pdf"],
@@ -121,38 +127,43 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
                 
                 if text:
                     st.session_state.form_data["interview_memo"] = text
+                    st.rerun()
             except Exception as e:
                 st.error(f"ファイルの読み込みに失敗しました: {e}")
-
-        # 面談メモはファイルアップロードからのみ取得
-        interview_memo = st.session_state.form_data.get("interview_memo", "")
         
-        if interview_memo:
-            st.success(f"✅ 面談メモを読み込みました ({len(interview_memo)}文字)")
-            with st.expander("読み込んだ内容を確認"):
-                st.text(interview_memo)
+        st.info("👆 ファイルをアップロードしてください")
+    else:
+        st.success(f"✅ 面談メモを読み込みました ({len(interview_memo)}文字)")
+        with st.expander("読み込んだ内容を確認"):
+            st.text(interview_memo)
+        
+        if st.button("ファイルを削除 (Clear)"):
+            st.session_state.form_data["interview_memo"] = ""
+            st.rerun()
+    
+    submitted = st.button("AIレビュー実行", type="primary", use_container_width=True)
+    
+    if submitted:
+        if not interview_memo.strip():
+            st.error("⚠️ 面談メモを入力してください")
         else:
-            st.info("👆 ファイルをアップロードしてください")
-        
-        submitted = st.form_submit_button("AIレビュー実行", type="primary", use_container_width=True)
-        
-        if submitted:
-            if not interview_memo.strip():
-                st.error("⚠️ 面談メモを入力してください")
-            else:
-                # フォームデータを保存
-                st.session_state.form_data = {
-                    "company_name": company_name,
-                    "contact_info": contact_info,
-                    "interview_memo": interview_memo
-                }
-                
-                # AIレビューを実行
-                spinner_target = review_container or st
-                with spinner_target:
-                    with st.spinner("🤖 AIが内容をレビュー中..."):
-                        review_result = review_interview_content(interview_memo, model_name=model_name)
-                        st.session_state.review_result = review_result
+            # フォームデータを保存
+            st.session_state.form_data = {
+                "company_name": company_name,
+                "contact_info": contact_info,
+                "interview_memo": interview_memo
+            }
+            
+            # AIレビューを実行
+            spinner_target = review_container or st
+            with spinner_target:
+                with st.spinner("🤖 AIが内容をレビュー中..."):
+                    # 再実行のためにフラグをリセット
+                    st.session_state.show_idea_report = False
+                    st.session_state.is_agent_running = False
+                    
+                    review_result = review_interview_content(interview_memo, model_name=model_name)
+                    st.session_state.review_result = review_result
     
     return {
         "company_name": company_name,
