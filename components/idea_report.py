@@ -19,7 +19,32 @@ def preview_slide_modal(html_content: str):
     """
     スライドをモーダルでプレビュー表示する
     """
-    components.html(html_content, height=600, scrolling=True)
+    # Reveal.jsの動作をiframe内で安定させるための設定変更
+    # 1. hash: true -> false (URLフラグメントの干渉防止)
+    # 2. embedded: true (埋め込みモード有効化)
+    # Reveal.jsの動作をiframe内で安定させるための設定変更
+    # 1. hash: true -> false (URLフラグメントの干渉防止)
+    html_content = html_content.replace("hash: true", "hash: false")
+
+    # embeddedモード時はhtml/bodyの高さを明示的に確保しないと表示されない場合があるためCSSを注入
+    # また、iframe内でのスクロール競合を防ぐために overflow: hidden を強制
+    css_fix = """
+    <style>
+        html, body, .reveal {
+            width: 100%;
+            height: 100vh !important;
+            margin: 0;
+            padding: 0;
+            overflow: hidden !important;
+        }
+    </style>
+    """
+    if "</head>" in html_content:
+        html_content = html_content.replace("</head>", f"{css_fix}\n</head>")
+    else:
+        html_content = css_fix + html_content
+
+    components.html(html_content, height=600, scrolling=False)
 
 
 def display_cross_pollination_cards(results: List[Dict]):
@@ -41,19 +66,20 @@ def display_cross_pollination_cards(results: List[Dict]):
         with st.container():
             st.markdown(f"""
             <div style="
-                border: 1px solid #ddd;
+                border: 1px solid rgba(0, 210, 255, 0.3);
                 border-radius: 10px;
                 padding: 15px;
                 margin: 10px 0;
-                background-color: #f9f9f9;
+                background-color: rgba(10, 20, 40, 0.6);
+                color: #e0f7ff;
             ">
-                <h4 style="margin-top: 0;">📋 知見 #{i}</h4>
+                <h4 style="margin-top: 0; color: #00d2ff; text-shadow: 0 0 5px rgba(0, 210, 255, 0.5);">📋 知見 #{i}</h4>
                 <p><strong>企業名:</strong> {metadata.get('company_name', '不明')}</p>
                 <p><strong>事業部:</strong> {metadata.get('department', '不明')}</p>
                 <p><strong>部署・役職:</strong> {metadata.get('contact_info', '不明')}</p>
-                <p><strong>関連度:</strong> <span style="color: #1f77b4; font-weight: bold;">{similarity:.1%}</span></p>
+                <p><strong>関連度:</strong> <span style="color: #00d2ff; font-weight: bold;">{similarity:.1%}</span></p>
                 <p><strong>内容要約:</strong></p>
-                <p style="background-color: white; padding: 10px; border-radius: 5px;">{content[:300]}{'...' if len(content) > 300 else ''}</p>
+                <p style="background-color: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.1);">{content[:300]}{'...' if len(content) > 300 else ''}</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -81,20 +107,21 @@ def display_academic_papers(academic_results: List[Dict]):
         with st.container():
             st.markdown(f"""
             <div style="
-                border: 1px solid #4CAF50;
+                border: 1px solid rgba(76, 175, 80, 0.5);
                 border-radius: 10px;
                 padding: 15px;
                 margin: 10px 0;
-                background-color: #f1f8f4;
+                background-color: rgba(10, 20, 40, 0.6);
+                color: #e0f7ff;
             ">
-                <h4 style="margin-top: 0; color: #2e7d32;">📄 論文 #{i}</h4>
+                <h4 style="margin-top: 0; color: #66bb6a; text-shadow: 0 0 5px rgba(76, 175, 80, 0.5);">📄 論文 #{i}</h4>
                 <p><strong>タイトル:</strong> {title}</p>
                 <p><strong>著者:</strong> {', '.join(authors[:5])}{'...' if len(authors) > 5 else ''}</p>
                 <p><strong>公開日:</strong> {published}</p>
-                <p><strong>リンク:</strong> <a href="{link}" target="_blank">{link}</a></p>
+                <p><strong>リンク:</strong> <a href="{link}" target="_blank" style="color: #66bb6a;">{link}</a></p>
                 <details>
-                    <summary style="cursor: pointer; color: #2e7d32; font-weight: bold;">要約を表示</summary>
-                    <p style="background-color: white; padding: 10px; border-radius: 5px; margin-top: 10px;">{summary[:500]}{'...' if len(summary) > 500 else ''}</p>
+                    <summary style="cursor: pointer; color: #66bb6a; font-weight: bold;">要約を表示</summary>
+                    <p style="background-color: rgba(0, 0, 0, 0.3); padding: 10px; border-radius: 5px; margin-top: 10px; border: 1px solid rgba(255, 255, 255, 0.1);">{summary[:500]}{'...' if len(summary) > 500 else ''}</p>
                 </details>
             </div>
             """, unsafe_allow_html=True)

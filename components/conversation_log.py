@@ -41,13 +41,13 @@ def get_chat_css():
         flex-direction: column;
         gap: 16px;
         padding: 20px;
-        background-color: #7494c0; /* LINE風の背景色 */
+        background-color: #7494c0 !important; /* LINE風の背景色 */
         border-radius: 12px;
     }
 
     /* リアルタイム表示用：メッセージを含むコンテナに背景色を適用 */
     [data-testid="stTabs"] [data-testid="stVerticalBlock"]:has(.message-row) {
-        background-color: #7494c0;
+        background-color: #7494c0 !important;
         padding: 20px;
         border-radius: 12px;
         gap: 16px;
