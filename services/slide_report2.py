@@ -63,13 +63,14 @@ HUMAN_PROMPT = """以下のスライド構成データを使って、最高の�
 NAVIGATION_CSS = """
 <style>
   .reveal .controls {
-    top: 50%;
-    left: 32px;
+    top: auto;
+    bottom: 32px;
     right: 32px;
-    bottom: auto;
-    transform: translateY(-50%);
+    left: auto;
+    transform: none;
     display: flex;
-    justify-content: space-between;
+    gap: 24px;
+    justify-content: flex-end;
     align-items: center;
     pointer-events: none;
   }
@@ -87,6 +88,12 @@ NAVIGATION_CSS = """
   .reveal .controls .navigate-down {
     display: none;
   }
+  .reveal .controls .navigate-left {
+    order: 1;
+  }
+  .reveal .controls .navigate-right {
+    order: 2;
+  }
   @media (max-width: 640px) {
     .reveal .controls {
       top: auto;
@@ -95,6 +102,12 @@ NAVIGATION_CSS = """
       right: 18px;
       transform: none;
     }
+  }
+  /* コンテンツが溢れたらスクロール可能にする */
+  .reveal .slides > section {
+    height: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden;
   }
 </style>
 """
@@ -118,7 +131,8 @@ def create_slide_report_v2(
     output_path = Path(output_dir) / basename
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-2.5-pro",
+        # model="gemini-2.5-pro",
+        model="gemini-2.5-flash",
         temperature=temperature,
         google_api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY"),
     )

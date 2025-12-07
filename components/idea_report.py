@@ -3,10 +3,23 @@
 """
 
 import streamlit as st
+import os
 from typing import List, Dict
 from services.markdown_parser import parse_markdown_to_slides
 from services.html_report import create_html_report
 from services.slide_report2 import create_slide_report_v2
+
+
+
+
+import streamlit.components.v1 as components
+
+@st.dialog("スライドプレビュー", width="large")
+def preview_slide_modal(html_content: str):
+    """
+    スライドをモーダルでプレビュー表示する
+    """
+    components.html(html_content, height=600, scrolling=True)
 
 
 def display_cross_pollination_cards(results: List[Dict]):
@@ -111,7 +124,6 @@ def render_idea_report():
                         company_name=company_name,
                     )
                     st.success("✅ スライドを作成しました")
-                    st.markdown(f"[スライドを開く]({slide_path})")
                     st.session_state.slide_report_path = slide_path
             except ValueError as e:
                 st.error(f"❌ 設定エラー: {str(e)}")
@@ -125,7 +137,34 @@ def render_idea_report():
         st.info(f"📎 作成済みレポート: [開く]({st.session_state.html_report_path})")
     
     if hasattr(st.session_state, 'slide_report_path') and st.session_state.slide_report_path:
-        st.info(f"📎 作成済みスライド: [開く]({st.session_state.slide_report_path})")
+        # スライドのダウンロードボタンとプレビューボタンを表示
+        col_download, col_preview = st.columns([3, 1])
+        with col_download:
+            try:
+                with open(st.session_state.slide_report_path, "r", encoding="utf-8") as f:
+                    slide_content = f.read()
+                file_name = os.path.basename(st.session_state.slide_report_path)
+                st.download_button(
+                    label="📥 スライドをダウンロード",
+                    data=slide_content,
+                    file_name=file_name,
+                    mime="text/html",
+                    use_container_width=True
+                )
+            except Exception as e:
+                st.error(f"ファイル読み込みエラー: {e}")
+        
+        with col_preview:
+            if st.button("プレビュー", key="preview_slide_btn", use_container_width=True):
+                try:
+                    # 既に読み込んでいる場合は再利用も可能だが、念のため再読み込み（または上のtryブロックで読み込んだ変数を使う）
+                    if 'slide_content' not in locals():
+                         with open(st.session_state.slide_report_path, "r", encoding="utf-8") as f:
+                            slide_content = f.read()
+                    preview_slide_modal(slide_content)
+                except Exception as e:
+                    st.error(f"プレビューエラー: {e}")
+
     
     # レポート本文を表示
     st.markdown(st.session_state.idea_report)
