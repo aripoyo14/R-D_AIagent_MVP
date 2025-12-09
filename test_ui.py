@@ -3,11 +3,13 @@ import time
 from components.conversation_log import render_conversation_log, render_message_html
 
 # 定数定義 (services/multi_agent.py からコピーまたはインポート)
-ORCHESTRATOR_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Orchestrator.png"
-MARKET_RESEARCHER_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Market_Researcher.png"
-INTERNAL_SPECIALIST_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Internal_Specialist.png"
-SOLUTION_ARCHITECT_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Solution_Architect.png"
-DEVILS_ADVOCATE_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Devils_Advocate.png"
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ORCHESTRATOR_AVATAR = os.path.join(BASE_DIR, "images", "Orchestrator.png")
+MARKET_RESEARCHER_AVATAR = os.path.join(BASE_DIR, "images", "Market_Researcher.png")
+INTERNAL_SPECIALIST_AVATAR = os.path.join(BASE_DIR, "images", "Internal_Specialist.png")
+SOLUTION_ARCHITECT_AVATAR = os.path.join(BASE_DIR, "images", "Solution_Architect.png")
+DEVILS_ADVOCATE_AVATAR = os.path.join(BASE_DIR, "images", "Devils_Advocate.png")
 
 def main():
     st.set_page_config(page_title="UI Test - R&D Brain", layout="wide")
@@ -52,19 +54,31 @@ def run_simulation():
     # プログレスバーの更新関数
     def update_progress(percent, text):
         with progress_container.container():
-            # プログレスバーの色をプライマリカラー（ボタンの色）に合わせるCSS
-            st.markdown(
-                """
-                <style>
-                div[data-testid="stProgress"] > div > div > div > div {
-                    background-color: #ff4b4b;
-                }
-                </style>
-                """,
-                unsafe_allow_html=True
-            )
-            st.markdown(f"**{percent}%** {text}")
-            st.progress(percent)
+            # カスタムCSSスピナーと進捗内容を表示
+            spinner_html = f"""
+            <style>
+            @keyframes spin {{
+                0% {{ transform: rotate(0deg); }}
+                100% {{ transform: rotate(360deg); }}
+            }}
+            .custom-spinner {{
+                border: 4px solid rgba(0, 210, 255, 0.1);
+                border-top: 4px solid #00d2ff;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                animation: spin 1s linear infinite;
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 8px;
+            }}
+            </style>
+            <div style="display: flex; align-items: center; padding: 10px;">
+                <div class="custom-spinner"></div>
+                <span style="color: #00d2ff; font-weight: 500;">[{percent}%] {text}</span>
+            </div>
+            """
+            st.markdown(spinner_html, unsafe_allow_html=True)
             if percent == 100:
                 st.empty()
 

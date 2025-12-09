@@ -131,8 +131,8 @@ def main():
     with tab1:
         review_container = st.container()
     with tab2:
+        progress_container = st.empty()  # 会話ログの上に表示するため、先に定義
         conversation_container = st.container()
-        progress_container = st.empty()
     
     # サイドバー（AIレビューのスピナーをレビュータブに表示するためコンテナを渡す）
     with st.sidebar:

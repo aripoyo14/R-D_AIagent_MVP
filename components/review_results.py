@@ -3,7 +3,7 @@ AIレビュー結果表示コンポーネント
 """
 
 import streamlit as st
-from services.ai_review import ReviewResult
+from services.ai_review import ReviewResult, DEFAULT_TECH_TAGS
 from services.multi_agent import run_innovation_squad
 from backend import save_interview_note
 from datetime import datetime
@@ -34,12 +34,15 @@ def handle_registration(
         progress_container: プログレスバーを表示するコンテナ
         model_name: 使用するAIモデル名
     """
+    # 技術タグが空の場合、デフォルトタグを使用
+    tech_tags = review.tech_tags if review.tech_tags else DEFAULT_TECH_TAGS.copy()
+    
     # メタデータを準備
     metadata = {
         "company_name": st.session_state.form_data.get("company_name", ""),
         "contact_info": st.session_state.form_data.get("contact_info", ""),
         "department": selected_department,
-        "tech_tags": review.tech_tags,
+        "tech_tags": tech_tags,
         "created_at": datetime.now().isoformat()
     }
     
@@ -88,8 +91,8 @@ def handle_registration(
 
                 # プログレスバーの更新関数
                 def update_progress(percent, text):
-                    # メインのステータステキスト更新
-                    status_text_area.markdown(f"##### 💡 [{percent}%] {text}")
+                    # # メインのステータステキスト更新
+                    # status_text_area.markdown(f"##### 💡 [{percent}%] {text}")
                     # プログレスバー更新
                     progress_bar.progress(percent)
                     
@@ -99,33 +102,49 @@ def handle_registration(
                     log_area.text("\n".join(logs))
                     
                     if progress_container:
-                        with progress_container.container():
-                            # プログレスバーの色をプライマリカラー（ボタンの色）に合わせるCSS
-                            st.markdown(
-                                """
-                                <style>
-                                div[data-testid="stProgress"] > div > div > div > div {
-                                    background-color: #ff4b4b;
-                                }
-                                </style>
-                                """,
-                                unsafe_allow_html=True
-                            )
-                            # st.markdown(f"**{percent}%** {text}")
-                            # st.progress(percent)
-                            if percent == 100:
-                                st.empty()
+                        # カスタムCSSスピナーと進捗内容を表示
+                        # 完了時はクリア
+                        if percent == 100:
+                            progress_container.empty()
+                        else:
+                            spinner_html = f"""
+                            <style>
+                            @keyframes spin {{
+                                0% {{ transform: rotate(0deg); }}
+                                100% {{ transform: rotate(360deg); }}
+                            }}
+                            .custom-spinner {{
+                                border: 4px solid rgba(0, 210, 255, 0.1);
+                                border-top: 4px solid #00d2ff;
+                                border-radius: 50%;
+                                width: 24px;
+                                height: 24px;
+                                animation: spin 1s linear infinite;
+                                display: inline-block;
+                                vertical-align: middle;
+                                margin-right: 8px;
+                            }}
+                            </style>
+                            <div style="display: flex; align-items: center; padding: 10px; background-color: rgba(0, 32, 96, 0.3); border-radius: 8px; margin-bottom: 10px;">
+                                <div class="custom-spinner"></div>
+                                <span style="color: #00d2ff; font-weight: 500; font-size: 14px;">[{percent}%] {text}</span>
+                            </div>
+                            """
+                            progress_container.markdown(spinner_html, unsafe_allow_html=True)
 
                 # 初期化
                 update_progress(0, "チーム結成中...")
                 
                 interview_content = st.session_state.form_data.get("interview_memo", "")
                 
+                # 技術タグが空の場合、デフォルトタグを使用
+                tech_tags = review.tech_tags if review.tech_tags else DEFAULT_TECH_TAGS.copy()
+                
                 # 会話ログコンテナの中で実行
                 with chat_log_container:
                     idea_report, cross_pollination_results, academic_results = run_innovation_squad(
                         interview_memo=interview_content,
-                        tech_tags=review.tech_tags,
+                        tech_tags=tech_tags,
                         department=selected_department,
                         company_name=st.session_state.form_data.get("company_name", ""),
                         progress_callback=update_progress,

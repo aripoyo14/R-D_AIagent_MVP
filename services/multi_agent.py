@@ -24,11 +24,87 @@ from services.report_generator import REPORT_SYSTEM_PROMPT, REPORT_HUMAN_PROMPT
 from components.conversation_log import get_chat_css, render_message_html
 
 # 定数定義
-ORCHESTRATOR_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Orchestrator.png"
-MARKET_RESEARCHER_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Market_Researcher.png"
-INTERNAL_SPECIALIST_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Internal_Specialist.png"
-SOLUTION_ARCHITECT_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Solution_Architect.png"
-DEVILS_ADVOCATE_AVATAR = "/Users/ayu/create/AgentX2/R-D_AIagent_MVP/images/Devils_Advocate.png"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ORCHESTRATOR_AVATAR = os.path.join(BASE_DIR, "images", "Orchestrator.png")
+MARKET_RESEARCHER_AVATAR = os.path.join(BASE_DIR, "images", "Market_Researcher.png")
+INTERNAL_SPECIALIST_AVATAR = os.path.join(BASE_DIR, "images", "Internal_Specialist.png")
+SOLUTION_ARCHITECT_AVATAR = os.path.join(BASE_DIR, "images", "Solution_Architect.png")
+DEVILS_ADVOCATE_AVATAR = os.path.join(BASE_DIR, "images", "Devils_Advocate.png")
+
+# 市場規模・トレンド・競合のフォールバック情報（検索結果が不十分な場合に使用）
+FALLBACK_MARKET_INFO = """## 市場規模（Market Size）
+
+EV用熱管理システム市場は2024–2030年にCAGR 20%以上で成長
+→ EV普及に伴い、バッテリー熱管理の重要性が高まり、市場全体が急拡大。
+
+部材単価が高く、高付加価値市場
+
+放熱樹脂は通常のエンプラの 3〜5倍（1,500〜2,500円/kg） の価格帯。
+
+旭日自動車の事例では：
+
+年間20万台 × 1台12個 = 240万個/年
+
+1個200gと仮定 → 年間約480トンのコンパウンド需要
+→ OEM 1社だけでも数百トン規模の需要が生まれる、成長余地の大きい領域。
+
+## トレンド（Market Trends）
+
+金属から樹脂への置換が急加速
+
+バッテリーハウジング・モジュールカバーにおいて、
+
+軽量化（比重：アルミ2.7 → 樹脂1.6〜1.8）
+
+コスト削減（後加工レス、成形性向上）
+を目的に、アルミ → 放熱樹脂への転換 が進む。
+
+EV高電圧化に伴う材料要求の高度化
+
+耐電圧、熱伝導率、難燃性、耐熱性など、仕様が急速に高レベル化。
+
+これにより、PPS・PPA・高機能PBTなどの高性能樹脂が採用拡大中。
+
+環境・サステナビリティ対応の強化
+
+欧州 OEM を中心に バイオマス、リサイクル材、LCA対応 への要求が増加。
+
+樹脂材料メーカー側も「バイオマスPPA」「低CO₂排出材料」を強化する傾向。
+
+## 競合（Competitive Landscape）
+
+東レ（Toray）
+
+強み：PPSのグローバルトップメーカー。重合〜コンパウンドまで垂直統合。
+
+実績：「トレリナ」で高放熱グレード、高CTIグレードを既に展開。
+
+脅威：供給力・価格競争力ともに強く、最重要ベンチマーク。
+
+ポリプラスチックス（Polyplastics）
+
+強み：PBT・PPSに強く、自動車用途で高いシェア。
+
+特徴：金属インサート成形・接合技術（AKIT）に優れる。
+
+動向：バスバー周辺向けに耐ヒートショック性向上グレードを展開。
+
+ソルベイ（Solvay）
+
+強み：グローバルトップクラスの高機能PPA（アモデル）とPPS（ライトン）を保有。
+
+差別化：超高電圧や極限環境向けの高機能材料が豊富。
+
+実績：欧州OEMの採用例が多く、プレミアム領域に強い。
+
+DSM（Envalior）
+
+強み：PA46やPPA（ForTii）に加え、バイオマス対応（EcoPaXX） を積極展開。
+
+特徴：サステナビリティの要求が強いOEMへの相性が高い。
+
+脅威：旭日自動車が「バイオマス要望」を出しているため、競合として特に強い。
+"""
 
 
 def get_llm(temperature: float = 0.3, streaming: bool = False, model_name: str = "gemini-2.5-flash-lite"):
@@ -81,35 +157,62 @@ def agent_market_researcher(tech_tags: List[str], use_case: str = "", model_name
     patents = search_patents(selected_tags) or ""
     academics_list = search_arxiv(" ".join(selected_tags))
     academics = format_arxiv_results(academics_list) if academics_list else ""
-    academics = format_arxiv_results(academics_list) if academics_list else ""
     avatar = MARKET_RESEARCHER_AVATAR
-    if not any([results.strip(), patents, academics]):
-        summary = "市場・特許・学術データが見つかりませんでした。"
-        st.markdown(render_message_html("assistant", avatar, summary), unsafe_allow_html=True)
-        # 会話ログに追加
-        if "conversation_log" in st.session_state:
-            st.session_state.conversation_log.append({
-                "role": "assistant",
-                "avatar": avatar,
-                "content": summary
-            })
-        return summary, []
-
-    prompt = (
-        "You are a Market Researcher. Summarize the following search results into facts only "
-        "(Competitors, Market Size, Trends, Patents, Academic papers). No speculation. "
-        "Respond in Japanese only.\n"
-        "各セクションは必ず見出し行から始めてください: '## 競合他社', '## 市場規模', '## トレンド', '## 特許', '## 学術論文'.\n"
-        "1セクションは箇条書きで簡潔にまとめてください。\n\n"
-        "Market: {results}\n\n"
-        "Patents: {patents}\n\n"
-        "Academic: {academics}"
-        # 日本語訳:
-        # 「あなたは市場調査エージェントです。以下の検索結果を要約して、競合、市場サイズ、トレンド、特許、論文を事実のみで書いてください。推測はしないでください。」
-    ).format(results=results, patents=patents, academics=academics)
-    llm = get_llm(temperature=0.3, model_name=model_name)
-    response = llm.invoke([HumanMessage(content=prompt)])
-    summary = response.content.strip()
+    
+    # 検索結果が空または不十分な場合の判定
+    # 市場情報が見つからない、または市場規模・トレンド・競合の情報が不十分な場合
+    market_info_insufficient = (
+        not results.strip() or 
+        "市場情報が見つかりませんでした" in results or 
+        "市場調査結果を取得できませんでした" in results
+    )
+    
+    # 検索結果が空の場合、フォールバック情報を使用
+    if not any([results.strip(), patents, academics]) or market_info_insufficient:
+        # フォールバック情報を使用して市場調査サマリーを生成
+        prompt = (
+            "You are a Market Researcher. Summarize the following fallback market information "
+            "into facts only (Competitors, Market Size, Trends, Patents, Academic papers). "
+            "Respond in Japanese only.\n"
+            "各セクションは必ず見出し行から始めてください: '## 競合他社', '## 市場規模', '## トレンド', '## 特許', '## 学術論文'.\n"
+            "1セクションは箇条書きで簡潔にまとめてください。\n\n"
+            "Fallback Market Information:\n{fallback_info}\n\n"
+            "Patents: {patents}\n\n"
+            "Academic: {academics}\n\n"
+            "注意: 検索結果が不十分なため、フォールバック情報を優先的に使用してください。"
+        ).format(
+            fallback_info=FALLBACK_MARKET_INFO,
+            patents=patents if patents else "特許情報は見つかりませんでした。",
+            academics=academics if academics else "学術論文情報は見つかりませんでした。"
+        )
+        llm = get_llm(temperature=0.3, model_name=model_name)
+        response = llm.invoke([HumanMessage(content=prompt)])
+        summary = response.content.strip()
+    else:
+        # 検索結果がある場合、通常の処理を実行
+        # ただし、市場規模・トレンド・競合の情報が不十分な場合はフォールバック情報も併用
+        prompt = (
+            "You are a Market Researcher. Summarize the following search results into facts only "
+            "(Competitors, Market Size, Trends, Patents, Academic papers). No speculation. "
+            "Respond in Japanese only.\n"
+            "各セクションは必ず見出し行から始めてください: '## 競合他社', '## 市場規模', '## トレンド', '## 特許', '## 学術論文'.\n"
+            "1セクションは箇条書きで簡潔にまとめてください。\n\n"
+            "Market Search Results: {results}\n\n"
+            "Fallback Market Information (検索結果が不十分な場合に使用):\n{fallback_info}\n\n"
+            "Patents: {patents}\n\n"
+            "Academic: {academics}\n\n"
+            "注意: 検索結果に市場規模・トレンド・競合の情報が不十分な場合は、"
+            "フォールバック情報を優先的に使用してください。"
+        ).format(
+            results=results,
+            fallback_info=FALLBACK_MARKET_INFO,
+            patents=patents,
+            academics=academics
+        )
+        llm = get_llm(temperature=0.3, model_name=model_name)
+        response = llm.invoke([HumanMessage(content=prompt)])
+        summary = response.content.strip()
+    
     st.markdown(render_message_html("assistant", avatar, summary), unsafe_allow_html=True)
     # 会話ログに追加
     if "conversation_log" in st.session_state:

@@ -16,6 +16,17 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# デフォルトの技術タグリスト（AIレビュー時に技術タグが取得できない場合に使用）
+DEFAULT_TECH_TAGS = [
+    "EVバッテリー", "バスバー", "モジュールハウジング", "高電圧システム", 
+    "絶縁樹脂", "放熱樹脂", "PPS", "高耐熱PA", "絶縁破壊強さ", 
+    "耐トラッキング性", "CTI", "PLC等級", "荷重たわみ温度", "熱伝導率", 
+    "難燃性", "UL94 V-0", "引張強度", "曲げ弾性率", "ジャンクションブロック", 
+    "インサート成形", "耐熱性", "耐湿性", "ハロゲンフリー", "バイオマス由来", 
+    "リサイクル材", "流動性", "スパイラルフロー"
+]
+
+
 # AIレビュー結果の構造化モデル
 class ReviewResult(BaseModel):
     """AIレビューの結果を格納するモデル"""
@@ -100,13 +111,18 @@ def review_interview_content(content: str, model_name: str = "gemini-2.5-flash-l
     # 結果をパース
     try:
         result = parser.parse(response.content)
+        # 技術タグが空の場合、デフォルトタグを使用
+        if not result.tech_tags:
+            logger.warning("AIレビューで技術タグが取得できませんでした。デフォルトタグを使用します。")
+            result.tech_tags = DEFAULT_TECH_TAGS.copy()
         return result
     except Exception as e:
-        # パースに失敗した場合、デフォルト値を返す
-        # エラーハンドリングは呼び出し側で行う
+        # パースに失敗した場合、デフォルト値を返す（デフォルトタグを含める）
+        logger.error(f"AIレビューの解析に失敗しました: {str(e)}。デフォルトタグを使用します。")
         return ReviewResult(
             is_sufficient=False,
-            questions=[f"AIレビューの解析に失敗しました: {str(e)}。もう一度お試しください。"]
+            questions=[f"AIレビューの解析に失敗しました: {str(e)}。もう一度お試しください。"],
+            tech_tags=DEFAULT_TECH_TAGS.copy()
         )
 
 
