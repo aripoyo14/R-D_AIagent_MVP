@@ -77,12 +77,13 @@ def main():
     section[data-testid="stMain"] [data-testid="stTabs"] [role="tabpanel"] > div {
         height: 63vh;
         overflow-y: auto;
-        padding-right: 12px;
-        padding-bottom: 20px;
+        padding: 20px;
     }
     
     section[data-testid="stSidebar"] {
-        background: rgba(10, 15, 30, 0.2);
+        background: 
+            radial-gradient(circle at 50% 90%, rgba(0, 120, 255, 0.4) 0%, transparent 60%),
+            linear-gradient(to bottom, #00396C, #00386B);
         backdrop-filter: blur(20px);
         border-right: 3px solid rgba(0, 210, 255, 0.8);
         box-shadow: 5px 0 30px rgba(0, 210, 255, 0.5);
@@ -100,9 +101,16 @@ def main():
     }
 
     section[data-testid="stSidebar"] [data-testid="stTabs"] [role="tabpanel"] > div {
+        background: 
+            radial-gradient(circle at 50% 20%, rgba(0, 120, 255, 0.3) 0%, transparent 60%),
+            rgba(0, 32, 96, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 210, 255, 0.2);
+        border-radius: 15px;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);
         max-height: 85vh;
         overflow-y: auto;
-        padding-right: 12px;
+        padding: 15px;
     }
     </style>
     """
