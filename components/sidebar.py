@@ -46,6 +46,11 @@ def render_sidebar(review_container: Optional[st.delta_generator.DeltaGenerator]
     form_data = {}
     model_name = "gemini-2.5-flash-lite" # Default
 
+    # ロゴを中央揃えで表示
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.image("images/AgentX_logo.png", use_container_width=True)
+
     # タブを作成
     tab1, tab2 = st.tabs(["📝 面談情報入力", "⚙️ 設定"])
     
