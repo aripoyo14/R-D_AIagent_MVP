@@ -23,13 +23,13 @@ def main():
     load_dotenv(override=True)
     
     st.set_page_config(
-        page_title="R&D Brain - 面談録登録",
-        page_icon="🧪",
+        page_title="Alchemy 5",
+        page_icon="🤖",
         layout="wide"
     )
     
-    st.title("🧪 R&D Brain - 面談録登録システム")
-    st.markdown("営業担当者が面談録を入力し、AIが内容を精査します")
+    st.title("Alchemy 5")
+    st.markdown("顧客面談録から製品開発のタネを生み出すAIエージェント")
     # タブ配下だけをスクロールさせるためのスタイル
     # CSSを定義
     custom_css = """

@@ -55,7 +55,6 @@ def handle_registration(
     
     if success:
         st.success("✅ データが正常に保存されました！")
-        st.balloons()
 
         # アイデア創出プロセスを実行
         target_container = conversation_container or st
