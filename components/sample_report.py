@@ -46,9 +46,9 @@ def render_sample_report():
     
     # 表示するスライドのファイル名リスト
     slide_files = [
-        "slide-旭日自動車株式会社-20251206-214751.html",
-        "slide-旭日自動車株式会社-20251207-045625.html",
-        "slide-旭日自動車株式会社-20251207-053453.html"
+        "株式会社AgentX-vol1.html",
+        "株式会社AgentX-vol2.html",
+        "株式会社AgentX-vol3.html"
     ]
     
     base_dir = os.path.join(os.getcwd(), "outputs")

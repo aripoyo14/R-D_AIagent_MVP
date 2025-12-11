@@ -170,6 +170,44 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
                     review_result = review_interview_content(interview_memo, model_name=model_name)
                     st.session_state.review_result = review_result
     
+    # デモ用面談録の読み込みとAIレビュー実行ボタン
+    st.markdown("---")
+    st.markdown("### 🎬 デモ用")
+    
+    demo_file_path = "AgentX_demodocument.docx"
+    if os.path.exists(demo_file_path):
+        if st.button("📄 デモ用面談録を読み込んでAIレビュー実行", type="secondary", use_container_width=True):
+            try:
+                # デモ用ファイルを読み込む
+                doc = docx.Document(demo_file_path)
+                text = "\n".join([para.text for para in doc.paragraphs if para.text.strip()])
+                
+                if text:
+                    # セッションステートに設定
+                    st.session_state.form_data = {
+                        "company_name": "株式会社AgentX",
+                        "contact_info": "ロボティクス開発本部 ハードウェア設計部 佐藤 チーフアーキテクト、ジェニファー・ウー 製造技術マネージャー",
+                        "interview_memo": text
+                    }
+                    
+                    # AIレビューを自動実行
+                    spinner_target = review_container or st
+                    with spinner_target:
+                        with st.spinner("🤖 AIが内容をレビュー中..."):
+                            # 再実行のためにフラグをリセット
+                            st.session_state.show_idea_report = False
+                            st.session_state.is_agent_running = False
+                            
+                            review_result = review_interview_content(text, model_name=model_name)
+                            st.session_state.review_result = review_result
+                    
+                    st.success("✅ デモ用面談録を読み込み、AIレビューを実行しました")
+                    st.rerun()
+            except Exception as e:
+                st.error(f"デモ用ファイルの読み込みに失敗しました: {e}")
+    else:
+        st.info("ℹ️ デモ用ファイルが見つかりません")
+    
     return {
         "company_name": company_name,
         "contact_info": contact_info,
