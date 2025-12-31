@@ -5,11 +5,24 @@ __pycache__/
 *.so
 .Python
 
+# Distribution / packaging
+dist/
+build/
+*.egg
+*.egg-info/
+.eggs/
+
 # Virtual Environment
 venv/
 env/
 ENV/
 .venv
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
 
 # Streamlit
 .streamlit/secrets.toml
@@ -29,12 +42,22 @@ Thumbs.db
 .env
 .env.local
 
-# Secrets
-secrets/
-*.json
-!package.json
-!package-lock.json
+# Google Service Account (認証情報のみ除外)
+*service-account*.json
+*credentials*.json
+*client_secret*.json
 
 # Logs
 *.log
 
+# Outputs (生成されたレポート等)
+outputs/
+*.html
+*.pptx
+
+# Demo files (デモ用のドキュメント)
+demo_*.docx
+
+# Temporary files
+*.tmp
+*.bak

@@ -13,9 +13,10 @@ import pypdf
 
 # 事業部のリスト
 DEPARTMENTS = [
-    "エバール事業部",
-    "イソプレン事業部",
-    "ジェネスタ事業部"
+    "製品開発部",
+    "研究開発部",
+    "技術営業部",
+    "材料技術部"
 ]
 
 
@@ -97,7 +98,7 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
     company_name = st.text_input(
         "企業名 (Company Name)",
         value=st.session_state.form_data.get("company_name", ""),
-        placeholder="例: トヨタ自動車"
+        placeholder="例: サンプル自動車"
     )
     
     contact_info = st.text_input(
@@ -174,7 +175,7 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
     st.markdown("---")
     st.markdown("### 🎬 デモ用")
     
-    demo_file_path = "AgentX_demodocument.docx"
+    demo_file_path = "demo_document.docx"
     if os.path.exists(demo_file_path):
         if st.button("📄 デモ用面談録を読み込んでAIレビュー実行", type="secondary", use_container_width=True):
             try:
@@ -185,7 +186,7 @@ def render_interview_form(review_container: Optional[st.delta_generator.DeltaGen
                 if text:
                     # セッションステートに設定
                     st.session_state.form_data = {
-                        "company_name": "株式会社AgentX",
+                        "company_name": "サンプル株式会社",
                         "contact_info": "ロボティクス開発本部 ハードウェア設計部 佐藤 チーフアーキテクト、ジェニファー・ウー 製造技術マネージャー",
                         "interview_memo": text
                     }

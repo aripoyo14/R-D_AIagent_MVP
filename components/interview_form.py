@@ -23,7 +23,7 @@ def render_interview_form() -> Dict:
         company_name = st.text_input(
             "企業名 (Company Name)",
             value=st.session_state.form_data.get("company_name", ""),
-            placeholder="例: トヨタ自動車"
+            placeholder="例: サンプル自動車"
         )
         
         contact_info = st.text_input(

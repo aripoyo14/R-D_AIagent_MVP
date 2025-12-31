@@ -41,7 +41,7 @@ python test_app_academic_integration.py
 
 # カスタムデータでテスト
 python test_app_academic_integration.py \
-  --company-name "旭日自動車株式会社" \
+  --company-name "サンプル自動車株式会社" \
   --department "研究開発部" \
   --tech-tags polymer "heat resistance" automotive \
   --interview-memo "顧客から高温環境下でも劣化しないポリマー材料の開発依頼がありました。"

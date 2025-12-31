@@ -44,12 +44,8 @@ def render_sample_report():
     """
     st.header("📑 サンプルレポート")
     
-    # 表示するスライドのファイル名リスト
-    slide_files = [
-        "株式会社AgentX-vol1.html",
-        "株式会社AgentX-vol2.html",
-        "株式会社AgentX-vol3.html"
-    ]
+    # 表示するスライドのファイル名リスト（削除済み）
+    slide_files = []
     
     base_dir = os.path.join(os.getcwd(), "outputs")
     
